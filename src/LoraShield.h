@@ -19,6 +19,10 @@
 #ifndef __LORA_SHIELD_H
 #define __LORA_SHIELD_H
 
+
+#define USE_BAND_868
+#define USE_MODEM_LORA
+
 #include "boards/arduino/board.h"
 
 #ifdef __cplusplus
@@ -28,10 +32,43 @@ extern "C"{
 #include "radio/radio.h"
 #include "system/gpio.h"
 #include "system/timer.h"
+#include "mac/LoRaMac.h"
+#include "mac/LoRaMac-api-v3.h"
+#include "boards/mcu/arduino/utilities.h"
 
 #ifdef __cplusplus
 }
 #endif //__cplusplus
+
+
+/*!
+ * Device states
+ */
+static enum eDevicState
+{
+    DEVICE_STATE_INIT,
+    DEVICE_STATE_JOIN,
+    DEVICE_STATE_SEND,
+    DEVICE_STATE_CYCLE,
+    DEVICE_STATE_SLEEP
+}DeviceState;
+
+/*!
+ * LoRaWAN compliance tests support data
+ */
+struct ComplianceTest_s
+{
+    bool Running;
+    uint8_t State;
+    bool IsTxConfirmed;
+    uint8_t AppPort;
+    uint8_t AppDataSize;
+    uint8_t *AppDataBuffer;
+    uint16_t DownLinkCounter;
+    bool LinkCheck;
+    uint8_t DemodMargin;
+    uint8_t NbGateways;
+}ComplianceTest;
 
 
 #endif __LORA_SHIELD_H
