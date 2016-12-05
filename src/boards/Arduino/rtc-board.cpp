@@ -12,9 +12,12 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
+#include <RTCInt.h>
 #include <math.h>
 #include "board.h"
 #include "rtc-board.h"
+#include "..\..\system\timer.h"
+
 
 /*!
  * RTC Time base in ms
@@ -26,6 +29,8 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Maximum number of days that can be handled by the RTC alarm counter before overflow.
  */
 #define RTC_ALARM_MAX_NUMBER_OF_DAYS                28
+
+RTCInt rtc;
 
 /*!
  * Number of seconds in a minute
@@ -190,12 +195,29 @@ static RtcCalendar_t RtcGetCalendar( void );
  */
 static void RtcCheckCalendarRollOver( uint8_t year );
 
+/*!
+ * \brief RTC IRQ Handler of the RTC Alarm
+ */
+void RTC_Alarm_IRQHandler( void )
+{
+    // HAL_RTC_AlarmIRQHandler( &RtcHandle );
+    // HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
+    // RtcRecoverMcuStatus( );
+    // RtcComputeWakeUpTime( );
+    // BlockLowPowerDuringTask( false );
+    TimerIrqHandler( );
+}
+
+
+
 void RtcInit( void )
 {
     // RtcCalendar_t rtcInit;
 
-    // if( RtcInitalized == false )
-    // {
+    if( RtcInitalized == false )
+    {
+		rtc.begin(TIME_H24);
+		Serial.println("RTC initialized");
         // __HAL_RCC_RTC_ENABLE( );
 
         // RtcHandle.Instance = RTC;
@@ -210,6 +232,7 @@ void RtcInit( void )
         // HAL_RTC_Init( &RtcHandle );
 
         // Set Date: Friday 1st of January 2000
+		rtc.setDate(1,1,0);
         // rtcInit.CalendarDate.Year = 0;
         // rtcInit.CalendarDate.Month = 1;
         // rtcInit.CalendarDate.Date = 1;
@@ -217,6 +240,7 @@ void RtcInit( void )
         // HAL_RTC_SetDate( &RtcHandle, &rtcInit.CalendarDate, RTC_FORMAT_BIN );
 
         // Set Time: 00:00:00
+		rtc.setTime(0,0,0,0);
         // rtcInit.CalendarTime.Hours = 0;
         // rtcInit.CalendarTime.Minutes = 0;
         // rtcInit.CalendarTime.Seconds = 0;
@@ -228,97 +252,97 @@ void RtcInit( void )
         // HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 4, 0 );
         // HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
         // RtcInitalized = true;
-    // }
+    }
 }
 
 void RtcSetTimeout( uint32_t timeout )
 {
-    // RtcStartWakeUpAlarm( timeout );
+    RtcStartWakeUpAlarm( timeout );
 }
 
 TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
 {
-    // if( timeout > McuWakeUpTime )
-    // {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
-        // if( NonScheduledWakeUp == true )
-        // {
-            // NonScheduledWakeUp = false;
-            // timeout -= McuWakeUpTime;
-        // }
-    // }
+    if( timeout > McuWakeUpTime )
+    {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
+        if( NonScheduledWakeUp == true )
+        {
+            NonScheduledWakeUp = false;
+            timeout -= McuWakeUpTime;
+        }
+    }
     
-    // if( timeout > McuWakeUpTime )
-    // {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
-        // if( timeout < 50 ) // 50 ms
-        // {
-            // RtcTimerEventAllowsLowPower = false;
-        // }
-        // else
-        // {
-            // RtcTimerEventAllowsLowPower = true;
-            // timeout -= McuWakeUpTime;
-        // }
-    // }
-    // return  timeout;
+    if( timeout > McuWakeUpTime )
+    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+        if( timeout < 50 ) // 50 ms
+        {
+            RtcTimerEventAllowsLowPower = false;
+        }
+        else
+        {
+            RtcTimerEventAllowsLowPower = true;
+            timeout -= McuWakeUpTime;
+        }
+    }
+    return  timeout;
 }
 
 TimerTime_t RtcGetTimerValue( void )
 {
-    // return( RtcConvertCalendarTickToTimerTime( NULL ) );
+    return( RtcConvertCalendarTickToTimerTime( NULL ) );
 }
 
 TimerTime_t RtcGetElapsedAlarmTime( void )
 {
-    // TimerTime_t currentTime = 0;
-    // TimerTime_t contextTime = 0;
+    TimerTime_t currentTime = 0;
+    TimerTime_t contextTime = 0;
 
-    // currentTime = RtcConvertCalendarTickToTimerTime( NULL );
-    // contextTime = RtcConvertCalendarTickToTimerTime( &RtcCalendarContext );
+    currentTime = RtcConvertCalendarTickToTimerTime( NULL );
+    contextTime = RtcConvertCalendarTickToTimerTime( &RtcCalendarContext );
 
-    // if( currentTime < contextTime )
-    // {
-        // return( currentTime + ( 0xFFFFFFFF - contextTime ) );
-    // }
-    // else
-    // {
-        // return( currentTime - contextTime );
-    // }
+    if( currentTime < contextTime )
+    {
+        return( currentTime + ( 0xFFFFFFFF - contextTime ) );
+    }
+    else
+    {
+        return( currentTime - contextTime );
+    }
 }
 
 TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime )
 {
-    // return( RtcGetTimerValue( ) + futureEventInTime );
+    return( RtcGetTimerValue( ) + futureEventInTime );
 }
 
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
 {
-    // TimerTime_t elapsedTime = 0;
+    TimerTime_t elapsedTime = 0;
 
     // Needed at boot, cannot compute with 0 or elapsed time will be equal to current time
-    // if( eventInTime == 0 )
-    // {
-        // return 0;
-    // }
+    if( eventInTime == 0 )
+    {
+        return 0;
+    }
 
-    // elapsedTime = RtcConvertCalendarTickToTimerTime( NULL );
+    elapsedTime = RtcConvertCalendarTickToTimerTime( NULL );
 
-    // if( elapsedTime < eventInTime )
-    // { // roll over of the counter
-        // return( elapsedTime + ( 0xFFFFFFFF - eventInTime ) );
-    // }
-    // else
-    // {
-        // return( elapsedTime - eventInTime );
-    // }
+    if( elapsedTime < eventInTime )
+    { // roll over of the counter
+        return( elapsedTime + ( 0xFFFFFFFF - eventInTime ) );
+    }
+    else
+    {
+        return( elapsedTime - eventInTime );
+    }
  }
 
 void BlockLowPowerDuringTask ( bool status )
 {
-    // if( status == true )
-    // {
-        // RtcRecoverMcuStatus( );
-    // }
-    // LowPowerDisableDuringTask = status;
+    if( status == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
+    LowPowerDisableDuringTask = status;
 }
 
 void RtcEnterLowPowerStopMode( void )
@@ -364,23 +388,25 @@ void RtcRecoverMcuStatus( void )
 
 static void RtcComputeWakeUpTime( void )
 {
-    // uint32_t start = 0;
-    // uint32_t stop = 0;
+    uint32_t start = 0;
+    uint32_t stop = 0;
     // RTC_AlarmTypeDef  alarmRtc;
     // RtcCalendar_t now;
 
-    // if( WakeUpTimeInitialized == false )
-    // {
+    if( WakeUpTimeInitialized == false )
+    {
+		rtc.getDate();
+		rtc.getTime();
         // now = RtcGetCalendar( );
         // HAL_RTC_GetAlarm( &RtcHandle, &alarmRtc, RTC_ALARM_A, RTC_FORMAT_BIN );
 
         // start = alarmRtc.AlarmTime.Seconds + ( SecondsInMinute * alarmRtc.AlarmTime.Minutes ) + ( SecondsInHour * alarmRtc.AlarmTime.Hours );
-        // stop = now.CalendarTime.Seconds + ( SecondsInMinute * now.CalendarTime.Minutes ) + ( SecondsInHour * now.CalendarTime.Hours );
+        stop = rtc.time.second + ( SecondsInMinute * rtc.time.minute ) + ( SecondsInHour * rtc.time.hour );
 
         // McuWakeUpTime = ceil ( ( stop - start ) * RTC_ALARM_TICK_DURATION );
 
         // WakeUpTimeInitialized = true;
-    // }
+    }
 }
 
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
@@ -388,7 +414,82 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     // RtcCalendar_t now;
     // RtcCalendar_t alarmTimer;
     // RTC_AlarmTypeDef alarmStructure;
+	rtc.getDate();
+	rtc.getTime();
+	uint16_t seconds = rtc.time.second;
+    uint16_t minutes = rtc.time.minute;
+    uint16_t hours = rtc.time.hour;
+    uint16_t days = rtc.date.day;
+	uint16_t months = rtc.date.month;
+	uint16_t years = rtc.date.year;
+	
+	uint32_t alarmSec = timeoutValue / 1000;
+	if(alarmSec == 0)
+		alarmSec = 1;
+	uint32_t alarmMin = alarmSec / 60;
+	alarmSec -= alarmMin * 60;
+	uint32_t alarmHrs = alarmMin / 60;
+	alarmMin -= alarmHrs * 60;
+	uint32_t alarmDays = alarmHrs / 24;
+	alarmHrs -= alarmDays * 24;
 
+	//update the values so far
+	if((seconds + alarmSec) > 60){
+		alarmMin++;
+		seconds += (seconds + alarmSec) - 60;
+	}
+	else
+		seconds += alarmSec;
+	if((minutes + alarmMin) > 60){
+		alarmHrs++;
+		minutes += (minutes + alarmMin) - 60;
+	}
+	else
+		minutes += alarmMin;
+	if((hours + alarmHrs) > 24){
+		alarmDays++;
+		hours += (hours + alarmHrs) - 24;
+	}
+	else
+		hours += alarmHrs;
+	
+	//calculate days, months and years
+	if((days / 365) > 0){
+		uint16_t alarmY = alarmDays / 365;
+		alarmDays -= alarmY * 365;
+		//remove from the count the days due to leap years
+		if((alarmY/4) > 0)
+			alarmDays -= alarmY/4;
+		else
+			if(alarmY >= (4 - (years%4)))
+				alarmDays--;
+		years += alarmY;
+	}
+	const uint8_t *daysInMonth = (years%4) ? DaysInMonth : DaysInMonthLeapYear;
+	while(alarmDays > 31){
+			alarmDays -= daysInMonth[months-1];
+		if(++months > 12)
+			months = 1;
+	}
+	if((days + alarmDays) > daysInMonth[months - 1]){
+		days += (days + alarmDays) - daysInMonth[months - 1];
+		if(++months > 12){
+			months = 1;
+			years++;
+		}
+	}
+	else days += alarmDays;
+	
+	//set alarm
+	rtc.time.hour=hours;
+	rtc.time.minute=minutes;
+	rtc.time.second=seconds;
+	rtc.date.day=days;
+	rtc.date.month=months;
+	rtc.date.year=years;
+	rtc.enableAlarm(YYMMDDHHMMSS, ALARM_INTERRUPT, RTC_Alarm_IRQHandler);
+	rtc.setAlarm();
+	
     // HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
     // HAL_RTCEx_DeactivateWakeUpTimer( &RtcHandle );
 
@@ -420,10 +521,12 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, RtcCalendar_t now )
 {
     // RtcCalendar_t calendar = now;
-
-    // uint16_t seconds = now.CalendarTime.Seconds;
-    // uint16_t minutes = now.CalendarTime.Minutes;
-    // uint16_t hours = now.CalendarTime.Hours;
+	// rtc.getDate();
+	// rtc.getTime();
+	
+    // uint16_t seconds = rtc.time.second;
+    // uint16_t minutes = rtc.time.minute;
+    // uint16_t hours = rtc.time.hour;
     // uint16_t days = now.CalendarDate.Date;
     // double timeoutValueTemp = 0.0;
     // double timeoutValue = 0.0;
@@ -704,17 +807,4 @@ static RtcCalendar_t RtcGetCalendar( void )
     // calendar.CalendarCentury = Century;
     // RtcCheckCalendarRollOver( calendar.CalendarDate.Year );
     // return calendar;
-}
-
-/*!
- * \brief RTC IRQ Handler of the RTC Alarm
- */
-void RTC_Alarm_IRQHandler( void )
-{
-    // HAL_RTC_AlarmIRQHandler( &RtcHandle );
-    // HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
-    // RtcRecoverMcuStatus( );
-    // RtcComputeWakeUpTime( );
-    // BlockLowPowerDuringTask( false );
-    // TimerIrqHandler( );
 }
