@@ -22,6 +22,9 @@
 //-----------modified
 #include "Arduino.h"
 
+
+#include "rtc-board.h"
+
 #ifdef __cplusplus
 extern "C"{
 #endif

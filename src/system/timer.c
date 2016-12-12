@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 // #include "board.h"
 // #include "rtc-board.h"
 #include "../boards/Arduino/board.h"
-// #include "../boards/Arduino/rtc-board.h"
+
 #include "timer.h"
 //-----------------------
 
@@ -357,17 +357,17 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 TimerTime_t TimerGetValue( void )
 {
-    // return RtcGetElapsedAlarmTime( );
+    return RtcGetElapsedAlarmTime( );
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-    // return RtcGetTimerValue( );
+    return RtcGetTimerValue( );
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 {
-    // return RtcComputeElapsedTime( savedTime );
+    return RtcComputeElapsedTime( savedTime );
 }
 
 TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
@@ -378,8 +378,8 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
     HasLoopedThroughMain = 0;
-    // obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
-    // RtcSetTimeout( obj->Timestamp );
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
+    RtcSetTimeout( obj->Timestamp );
 }
 
 void TimerLowPowerHandler( void )

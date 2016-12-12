@@ -30,7 +30,8 @@ void BoardInitPeriph( void )
     // GpioInit( &Led13, IRQ_MPL3115, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 	
 	// Switch LED 13 OFF
-    GpioWrite( &Led13, 1 );
+    // GpioWrite( &Led13, 1 );
+	RtcInit();
 }
 
 static void BoardUnusedIoInit( void )

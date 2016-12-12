@@ -21,7 +21,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef TimerTime_t
 typedef uint32_t TimerTime_t;
 #endif
-
+#ifdef __cplusplus
+extern "C"{
+#endif
+#include "..\..\system\timer.h"
 /*!
  * \brief Initializes the RTC timer
  *
@@ -92,5 +95,9 @@ void RtcEnterLowPowerStopMode( void );
  * \brief Restore the MCU to its normal operation mode
  */
 void RtcRecoverMcuStatus( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RTC_BOARD_H__
