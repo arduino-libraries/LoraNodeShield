@@ -20,5 +20,8 @@
 
 void HAL_Delay(__IO uint32_t Delay)
 {
-	delay(Delay);
+#if defined(ARDUINO_ARCH_NRF52)
+  nrf_delay_ms(Delay);
+#endif
+	// delay(Delay); //delay function cannot be used inside interrupt routine
 }
