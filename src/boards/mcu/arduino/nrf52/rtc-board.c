@@ -34,6 +34,7 @@ volatile TimerTime_t now;
 volatile uint32_t McuWakeUpTime = 0;
 volatile bool NonScheduledWakeUp = false;
 static bool RtcTimerEventAllowsLowPower = false;
+volatile uint32_t timeout;
 
 
 void RtcInit( void )
@@ -203,7 +204,8 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
 
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 {
-	RtcCalendarContext=now;
+	timeout = now + timeoutValue;
+	RtcCalendarContext = now;
 }
 
 void RtcSetTimeout( uint32_t timeout )
@@ -215,7 +217,8 @@ void RtcSetTimeout( uint32_t timeout )
 void TIMER3_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER3, NRF_TIMER_EVENT_COMPARE0);
 	now++;
-	TimerIrqHandler( );
+	if(timeout == now)
+		TimerIrqHandler( );
 }
  
  #endif
