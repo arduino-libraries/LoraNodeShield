@@ -931,6 +931,7 @@ static void PrepareRxDoneAbort( void )
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
+	//digitalWrite(38, HIGH);
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
     bool skipIndication = false;
@@ -1786,9 +1787,9 @@ static bool SetNextChannel( TimerTime_t* time )
                 }
                 if( Bands[i].TimeOff != 0 )
                 {
-                    nextTxDelay = MIN( Bands[i].TimeOff -
-                                       TimerGetElapsedTime( Bands[i].LastTxDoneTime ),
-                                       nextTxDelay );
+                    nextTxDelay = 0;//MIN( Bands[i].TimeOff -
+                                  //     TimerGetElapsedTime( Bands[i].LastTxDoneTime ),
+                                  //     nextTxDelay );
                 }
             }
             else
