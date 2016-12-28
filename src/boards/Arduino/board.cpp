@@ -23,6 +23,27 @@
  */
 Gpio_t Led13;
 
+/*!
+ * Nested interrupt counter.
+ *
+ * \remark Interrupt should only be fully disabled once the value is 0
+ */
+static uint8_t IrqNestLevel = 0;
+
+void BoardDisableIrq( void )
+{
+    __disable_irq( );
+    IrqNestLevel++;
+}
+
+void BoardEnableIrq( void )
+{
+    IrqNestLevel--;
+    if( IrqNestLevel == 0 )
+    {
+        __enable_irq( );
+    }
+}
 
 void BoardInitPeriph( void )
 {

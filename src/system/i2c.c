@@ -44,7 +44,7 @@ void I2cDeInit( I2c_t *obj )
 void I2cResetBus( I2c_t *obj )
 {
     I2cInitialized = false;
-    I2cInit( obj, PIN_WIRE_SCL, PIN_WIRE_SDA );
+    I2cInit( obj, /*I2C_SCL*/PIN_WIRE_SCL, /*I2C_SDA*/PIN_WIRE_SDA );
 }
 
 uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data )

@@ -143,16 +143,6 @@
 #define LORAMAC_MFR_LEN                             4
 
 /*!
- * Syncword for Private LoRa networks
- */
-#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
-
-/*!
- * Syncword for Public LoRa networks
- */
-#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
-
-/*!
  * LoRaWAN devices classes definition
  */
 typedef enum eDeviceClass
@@ -593,6 +583,11 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
+     * The MAC could not retransmit a frame due to a datarate decreasement. The
+     * payload size is not applicable for the datarate.
+     */
+    LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR,
+    /*!
      * The node has lost MAX_FCNT_GAP or more frames.
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
@@ -918,6 +913,7 @@ typedef struct sMcpsIndication
  * --------------------- | :-----: | :--------: | :------: | :-----:
  * \ref MLME_JOIN        | YES     | NO         | NO       | YES
  * \ref MLME_LINK_CHECK  | YES     | NO         | NO       | YES
+ * \ref MLME_TXCW        | YES     | NO         | NO       | YES
  *
  * The following table provides links to the function implementations of the
  * related MLME primitives.
@@ -941,6 +937,12 @@ typedef enum eMlme
      * LoRaWAN Specification V1.0.1, chapter 5, table 4
      */
     MLME_LINK_CHECK,
+    /*!
+     * Sets Tx continuous wave mode
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_TXCW,
 }Mlme_t;
 
 /*!
@@ -969,6 +971,17 @@ typedef struct sMlmeReqJoin
 }MlmeReqJoin_t;
 
 /*!
+ * LoRaMAC MLME-Request for Tx continuous wave mode
+ */
+typedef struct sMlmeReqTxCw
+{
+    /*!
+     * Time in seconds while the radio is kept in continuous wave mode
+     */
+    uint16_t Timeout;
+}MlmeReqTxCw_t;
+
+/*!
  * LoRaMAC MLME-Request structure
  */
 typedef struct sMlmeReq
@@ -987,6 +1000,10 @@ typedef struct sMlmeReq
          * MLME-Request parameters for a join request
          */
         MlmeReqJoin_t Join;
+        /*!
+         * MLME-Request parameters for Tx continuous mode request
+         */
+        MlmeReqTxCw_t TxCw;
     }Req;
 }MlmeReq_t;
 
@@ -1046,6 +1063,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_CHANNELS_DATARATE        | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
  * \ref MIB_CHANNELS_TX_POWER        | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_TX_POWER| YES | YES
  * \ref MIB_UPLINK_COUNTER           | YES | YES
  * \ref MIB_DOWNLINK_COUNTER         | YES | YES
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
@@ -1211,6 +1229,20 @@ typedef enum eMib
      */
     MIB_CHANNELS_TX_POWER,
     /*!
+     * Transmission power of a channel
+     *
+     * LoRaWAN Specification V1.0.1, chapter 7
+     *
+     * EU868 - [TX_POWER_20_DBM, TX_POWER_14_DBM, TX_POWER_11_DBM,
+     *          TX_POWER_08_DBM, TX_POWER_05_DBM, TX_POWER_02_DBM]
+     *
+     * US915 - [TX_POWER_30_DBM, TX_POWER_28_DBM, TX_POWER_26_DBM,
+     *          TX_POWER_24_DBM, TX_POWER_22_DBM, TX_POWER_20_DBM,
+     *          TX_POWER_18_DBM, TX_POWER_14_DBM, TX_POWER_12_DBM,
+     *          TX_POWER_10_DBM]
+     */
+    MIB_CHANNELS_DEFAULT_TX_POWER,
+    /*!
      * LoRaWAN Up-link counter
      *
      * LoRaWAN Specification V1.0.1, chapter 4.3.1.5
@@ -1355,6 +1387,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_CHANNELS_DATARATE
      */
     int8_t ChannelsDatarate;
+    /*!
+     * Channels TX power
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_TX_POWER
+     */
+    int8_t ChannelsDefaultTxPower;
     /*!
      * Channels TX power
      *
@@ -1522,7 +1560,7 @@ typedef struct sLoRaMacCallback
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks );
-
+void LoRaMacTestSetDutyCycleOn( bool enable );
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
  *          a given payload size. The LoRaMAC takes scheduled MAC commands into

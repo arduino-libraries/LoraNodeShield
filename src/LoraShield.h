@@ -33,7 +33,7 @@ extern "C"{
 #include "system/gpio.h"
 #include "system/timer.h"
 #include "mac/LoRaMac.h"
-#include "mac/LoRaMac-api-v3.h"
+// #include "mac/LoRaMac-api-v3.h"
 #include "boards/mcu/arduino/utilities.h"
 
 #ifdef __cplusplus

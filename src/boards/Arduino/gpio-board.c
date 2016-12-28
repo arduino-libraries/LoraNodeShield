@@ -98,7 +98,7 @@ void GpioMcuToggle( Gpio_t *obj )
     }
 	
     bool val=digitalRead(obj->pinIndex);
-    digitalWrite(obj->pinIndex, val);
+    digitalWrite(obj->pinIndex, !val);
 }
 
 uint32_t GpioMcuRead( Gpio_t *obj )
