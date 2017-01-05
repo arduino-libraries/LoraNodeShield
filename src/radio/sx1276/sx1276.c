@@ -18,14 +18,14 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 // #include "board.h"
 // #include "radio.h"
 // #include "sx1276-board.h"
-#include "..\..\boards\Arduino\board.h"
+#include "boards/arduino/board.h"
 // #ifdef __cplusplus
 // extern "C"{
 // #endif
-#include "..\..\radio\radio.h"
-#include "..\..\boards\arduino\sx1276-board.h"
-#include "..\..\system\timer.h"
-#include "..\..\system\delay.h"
+#include "radio/radio.h"
+#include "boards/arduino/sx1276-board.h"
+#include "system/timer.h"
+#include "system/delay.h"
 // #ifdef __cplusplus
 // }
 // #endif

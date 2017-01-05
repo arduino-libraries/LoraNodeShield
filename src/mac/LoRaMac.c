@@ -19,8 +19,8 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 */
 //modified----------------------
 // #include "board.h"
-#include "..\boards\Arduino\board.h"
-#include "..\system\timer.h"
+#include "boards/arduino/board.h"
+#include "system/timer.h"
 //------------------------------
 
 #include "LoRaMacCrypto.h"

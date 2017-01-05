@@ -14,7 +14,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include <stdlib.h>
 #include <stdio.h>
-#include "../../Arduino/board.h"
+#include "boards/arduino/board.h"
 #include "utilities.h"
 
 /*!

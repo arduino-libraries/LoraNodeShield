@@ -13,7 +13,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 //-------------------modified
-#include "../boards/Arduino/board.h"
+#include "boards/arduino/board.h"
 // #include "board.h"
 // #include "uart-board.h"
 //---------------------------

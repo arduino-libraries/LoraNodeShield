@@ -18,8 +18,8 @@
 
 #if defined(ARDUINO_ARCH_NRF52)
 
-#include "..\..\..\Arduino\board.h"
-#include "..\..\..\Arduino\rtc-board.h"
+#include "boards/arduino/board.h"
+#include "boards/arduino/rtc-board.h"
 #include "nrf_timer.h"
 
 /*!

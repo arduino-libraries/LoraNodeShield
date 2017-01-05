@@ -14,7 +14,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 //-------------modified
 // #include "board.h"
-#include "../boards/Arduino/board.h"
+#include "boards/arduino/board.h"
 //---------------------
 
 void Delay( float s )

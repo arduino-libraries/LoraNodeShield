@@ -49,7 +49,7 @@
 // Includes board dependent definitions such as channels frequencies
 #include "LoRaMac-definitions.h"
 //modified-------------------------------
-#include "..\boards\Arduino\rtc-board.h" //added this row
+#include "boards/arduino/rtc-board.h" //added this row
 //---------------------------------------
 
 /*!

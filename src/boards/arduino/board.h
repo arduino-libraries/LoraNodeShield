@@ -29,9 +29,9 @@
 extern "C"{
 #endif
 
-#include "..\..\system\gpio.h"
+#include "system/gpio.h"
 #include "sx1276-board.h"
-#include "..\..\system\spi.h"
+#include "system/spi.h"
 #ifdef __cplusplus
 }
 #endif

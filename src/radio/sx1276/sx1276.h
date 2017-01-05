@@ -19,8 +19,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "sx1276Regs-LoRa.h"
 
 //----------modified
-#include "..\..\system\spi.h"
-#include "..\radio.h"
+#include "system/spi.h"
+#include "radio/radio.h"
 //------------------------------
 
 /*!

@@ -37,7 +37,7 @@ DEALINGS WITH THE SOFTWARE
 #include <stdint.h>
 #include "aes.h"
 #include "cmac.h"
-#include "..\..\boards\mcu\arduino\utilities.h"
+#include "boards/mcu/arduino/utilities.h"
 
 #define LSHIFT(v, r) do {                                       \
   int32_t i;                                                  \

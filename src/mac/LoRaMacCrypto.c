@@ -21,13 +21,13 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #include <stdint.h>
 //modified------------------
 // #include "utilities.h"
-#include "..\boards\mcu\arduino\utilities.h"
+#include "boards/mcu/arduino/utilities.h"
 
 
 // #include "aes.h"
 // #include "cmac.h"
-#include "..\system\crypto\aes.h"
-#include "..\system\crypto\cmac.h"
+#include "system/crypto/aes.h"
+#include "system/crypto/cmac.h"
 //---------------------------
 
 
