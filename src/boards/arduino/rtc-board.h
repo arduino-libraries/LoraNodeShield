@@ -24,7 +24,7 @@ typedef uint32_t TimerTime_t;
 #ifdef __cplusplus
 extern "C"{
 #endif
-#include "..\..\system\timer.h"
+#include "system/timer.h"
 /*!
  * \brief Initializes the RTC timer
  *

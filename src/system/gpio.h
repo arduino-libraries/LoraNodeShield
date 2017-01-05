@@ -21,7 +21,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 //------------------modified
 // #include "pinName-board.h"
-#include "..\boards\Arduino\pinName-board.h"
+#include "boards/arduino/pinName-board.h"
 
 // #include "pinName-ioe.h"
 //---------------------------

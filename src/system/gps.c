@@ -19,7 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <string.h>
 //------------modified
 // #include "board.h"
-#include "../boards/Arduino/board.h"
+#include "boards/arduino/board.h"
 //--------------------
 #include "gps.h"
 

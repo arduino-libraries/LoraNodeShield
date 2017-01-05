@@ -15,7 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SPI_H__
 #define __SPI_H__
 
-#include "..\boards\Arduino\spi-board.h"
+#include "boards/arduino/spi-board.h"
 
 /*!
  * SPI object type definition

@@ -14,8 +14,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 //-------------------modified
 // #include "board.h"
-#include "../boards/arduino/board.h"
-#include "../boards/arduino/adc-board.h"
+#include "boards/arduino/board.h"
+#include "boards/arduino/adc-board.h"
 //-------------------------
 
 /*!

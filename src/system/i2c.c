@@ -15,8 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 //---------------------modified
 // #include "board.h"
 // #include "i2c-board.h"
-#include "../boards/Arduino/board.h"
-#include "../boards/Arduino/i2c-board.h"
+#include "boards/arduino/board.h"
+#include "boards/arduino/i2c-board.h"
 //------------------------------
 
 /*!

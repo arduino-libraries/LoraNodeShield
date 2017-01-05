@@ -19,7 +19,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 */
 //modified------------------
 // #include "board.h"
-#include "..\boards\Arduino\board.h"
+#include "boards/arduino/board.h"
 //-------------------------
 
 #include "LoRaMac-api-v3.h"

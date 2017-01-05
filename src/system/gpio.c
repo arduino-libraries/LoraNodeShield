@@ -18,10 +18,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 //-------------modified
 // #include "board.h"
-#include "../boards/Arduino/board.h"
+#include "boards/arduino/board.h"
 
 // #include "gpio-board.h"
-#include "../boards/Arduino/gpio-board.h"
+#include "boards/arduino/gpio-board.h"
 //------------------------
 
 #if defined( BOARD_IOE_EXT )

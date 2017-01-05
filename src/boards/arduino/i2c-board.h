@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __I2C_MCU_H__
 
 //-------------------modified
-#include "..\..\system\i2c.h"
+#include "system/i2c.h"
 //---------------------------
 
 /*!
