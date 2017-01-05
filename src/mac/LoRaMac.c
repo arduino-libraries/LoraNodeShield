@@ -19,8 +19,8 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 */
 //modified----------------------
 // #include "board.h"
-#include "..\boards\Arduino\board.h"
-#include "..\system\timer.h"
+#include "boards/arduino/board.h"
+#include "system/timer.h"
 //------------------------------
 
 #include "LoRaMacCrypto.h"
@@ -852,6 +852,8 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel );
  * \brief Resets MAC specific parameters to default
  */
 static void ResetMacParameters( void );
+
+//void DbgMsg(const char * msg); //__attribute__((weak));
 
 static void OnRadioTxDone( void )
 {
@@ -3098,6 +3100,7 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
 
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks )
 {
+	DbgMsg("LoRaMacInitialization ENTER");
     if( primitives == NULL )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
@@ -3194,10 +3197,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
         Channels[i].Band = 0;
     }
 #endif
-
+    DbgMsg("ResetMacParameters");
     ResetMacParameters( );
 
-    // Initialize timers
+    // Initialize timers      
+    DbgMsg("Initialize timers");
     TimerInit( &MacStateCheckTimer, OnMacStateCheckTimerEvent );
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
 
@@ -3207,6 +3211,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     TimerInit( &AckTimeoutTimer, OnAckTimeoutTimerEvent );
 
     // Initialize Radio driver
+    DbgMsg("Initialize Radio driver");
     RadioEvents.TxDone = OnRadioTxDone;
     RadioEvents.RxDone = OnRadioRxDone;
     RadioEvents.RxError = OnRadioRxError;
@@ -3215,12 +3220,15 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     Radio.Init( &RadioEvents );
 
     // Random seed initialization
+    DbgMsg("Random seed initialization");
     srand1( Radio.Random( ) );
 
+	DbgMsg("SetPublicNetwork");
     PublicNetwork = true;
     SetPublicNetwork( PublicNetwork );
     Radio.Sleep( );
-
+	DbgMsg("LORAMAC_STATUS_OK");
+	
     return LORAMAC_STATUS_OK;
 }
 

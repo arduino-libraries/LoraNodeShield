@@ -18,14 +18,14 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 // #include "board.h"
 // #include "radio.h"
 // #include "sx1276-board.h"
-#include "..\..\boards\Arduino\board.h"
+#include "boards/arduino/board.h"
 // #ifdef __cplusplus
 // extern "C"{
 // #endif
-#include "..\..\radio\radio.h"
-#include "..\..\boards\arduino\sx1276-board.h"
-#include "..\..\system\timer.h"
-#include "..\..\system\delay.h"
+#include "radio/radio.h"
+#include "boards/arduino/sx1276-board.h"
+#include "system/timer.h"
+#include "system/delay.h"
 // #ifdef __cplusplus
 // }
 // #endif
@@ -239,14 +239,16 @@ void SX1276Init( RadioEvents_t *events )
     TimerInit( &RxTimeoutTimer, SX1276OnTimeoutIrq );
     TimerInit( &RxTimeoutSyncWord, SX1276OnTimeoutIrq );
 
+    DbgMsg("SX1276Reset");
     SX1276Reset( );
 
+    DbgMsg("RxChainCalibration");
     RxChainCalibration( );
 
     SX1276SetOpMode( RF_OPMODE_SLEEP );
 
     SX1276IoIrqInit( DioIrq );
-
+    DbgMsg("RadioRegsInit");
     for( i = 0; i < sizeof( RadioRegsInit ) / sizeof( RadioRegisters_t ); i++ )
     {
         SX1276SetModem( RadioRegsInit[i].Modem );
