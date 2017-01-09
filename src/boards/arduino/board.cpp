@@ -105,6 +105,11 @@ uint8_t GetBoardPowerSource( void )
 //TODO
 }
 
+extern "C" void dbgMsg(const char* msg)
+{
+	Serial.println(msg);
+}
+
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
