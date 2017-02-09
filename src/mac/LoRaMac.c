@@ -15,7 +15,7 @@ Description: LoRa MAC layer implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel JÃ¤ckle ( STACKFORCE )
+Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jäckle ( STACKFORCE )
 */
 //modified----------------------
 // #include "board.h"
@@ -998,7 +998,7 @@ static void PrepareRxDoneAbort( void )
 }
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
-{digitalWrite(38, HIGH);
+{
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
     bool skipIndication = false;
