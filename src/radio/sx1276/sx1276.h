@@ -15,13 +15,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1276_H__
 #define __SX1276_H__
 
-#include "sx1276Regs-Fsk.h"
-#include "sx1276Regs-LoRa.h"
-
 //----------modified
 #include "system/spi.h"
 #include "radio/radio.h"
 //------------------------------
+
+#include "sx1276Regs-Fsk.h"
+#include "sx1276Regs-LoRa.h"
 
 /*!
  * Radio wakeup time from SLEEP mode
@@ -39,12 +39,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
 
 /*!
- * Syncword for Private LoRa networks
+ * Sync word for Private LoRa networks
  */
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x12
 
 /*!
- * Syncword for Public LoRa networks
+ * Sync word for Public LoRa networks
  */
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 

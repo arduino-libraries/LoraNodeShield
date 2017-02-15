@@ -30,7 +30,6 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #include "system/crypto/cmac.h"
 //---------------------------
 
-
 #include "LoRaMacCrypto.h"
 
 /*!

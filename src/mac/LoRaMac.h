@@ -557,23 +557,23 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_OK = 0,
     /*!
-     * An error occured during the execution of the service
+     * An error occurred during the execution of the service
      */
     LORAMAC_EVENT_INFO_STATUS_ERROR,
     /*!
-     * A Tx timeouit occured
+     * A Tx timeout occurred
      */
     LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
     /*!
-     * An Rx timeout occured on receive window 2
+     * An Rx timeout occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,
     /*!
-     * An Rx error occured on receive window 2
+     * An Rx error occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_ERROR,
     /*!
-     * An error occured in the join procedure
+     * An error occurred in the join procedure
      */
     LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL,
     /*!
@@ -583,7 +583,7 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
-     * The MAC could not retransmit a frame due to a datarate decreasement. The
+     * The MAC could not retransmit a frame since the MAC decreased the datarate. The
      * payload size is not applicable for the datarate.
      */
     LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR,
@@ -592,7 +592,7 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
     /*!
-     * An address error occured
+     * An address error occurred
      */
     LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL,
     /*!
@@ -836,6 +836,10 @@ typedef struct sMcpsConfirm
      * The uplink counter value related to the frame
      */
     uint32_t UpLinkCounter;
+    /*!
+     * The uplink frequency related to the frame
+     */
+    uint32_t UpLinkFrequency;
 }McpsConfirm_t;
 
 /*!
@@ -968,6 +972,10 @@ typedef struct sMlmeReqJoin
      * LoRaWAN Specification V1.0.1, chapter 6.2.2
      */
     uint8_t *AppKey;
+    /*!
+     * Number of trials for the join request.
+     */
+    uint8_t NbTrials;
 }MlmeReqJoin_t;
 
 /*!
@@ -1054,6 +1062,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_CHANNELS                 | YES | NO
  * \ref MIB_RX2_CHANNEL              | YES | YES
  * \ref MIB_CHANNELS_MASK            | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_MASK    | YES | YES
  * \ref MIB_CHANNELS_NB_REP          | YES | YES
  * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
  * \ref MIB_RECEIVE_DELAY_1          | YES | YES
@@ -1158,6 +1167,12 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_CHANNELS_MASK,
+    /*!
+     * LoRaWAN default channels mask
+     *
+     * LoRaWAN Specification V1.0.1, chapter 7
+     */
+    MIB_CHANNELS_DEFAULT_MASK,
     /*!
      * Set the number of repetitions on a channel
      *
@@ -1340,6 +1355,12 @@ typedef union uMibParam
      */
     uint16_t* ChannelsMask;
     /*!
+     * Default channel mask
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_MASK
+     */
+    uint16_t* ChannelsDefaultMask;
+    /*!
      * Number of frame repetitions
      *
      * Related MIB type: \ref MIB_CHANNELS_NB_REP
@@ -1488,11 +1509,11 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_NO_NETWORK_JOINED,
     /*!
-     * Service not started - playload lenght error
+     * Service not started - payload lenght error
      */
     LORAMAC_STATUS_LENGTH_ERROR,
     /*!
-     * Service not started - playload lenght error
+     * Service not started - payload lenght error
      */
     LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR,
     /*!
@@ -1560,7 +1581,7 @@ typedef struct sLoRaMacCallback
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks );
-void LoRaMacTestSetDutyCycleOn( bool enable );
+
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
  *          a given payload size. The LoRaMAC takes scheduled MAC commands into

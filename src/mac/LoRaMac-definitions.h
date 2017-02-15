@@ -15,9 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __LORAMAC_BOARD_H__
 #define __LORAMAC_BOARD_H__
 
-//modified--------------------
-#define USE_BAND_868 //added this row
-//----------------------------
+//modified-----------------
+#include "config.h" //added this row
+//-------------------------
 
 /*!
  * Returns individual channel mask
@@ -136,15 +136,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
-
-/*!
  * LoRaMac channels which are allowed for the join procedure
  */
 #define JOIN_CHANNELS      ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
@@ -242,8 +233,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 // Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
 #define BAND0              { 1, TX_POWER_17_DBM, 0,  0 } //  100.0 %
-
-#define BACKOFF_RND_OFFSET      600000
 
 #elif defined( USE_BAND_780 )
 
@@ -352,15 +341,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LC1                { 779500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC2                { 779700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC3                { 779900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-
-/*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -492,15 +472,6 @@ typedef enum
 #define LC3                { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
 
 /*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
-
-/*!
  * LoRaMac channels which are allowed for the join procedure
  */
 #define JOIN_CHANNELS      ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
@@ -610,8 +581,6 @@ typedef enum
 
 // Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
 #define BAND0              { 1, TX_POWER_20_DBM, 0,  0 } //  100.0 %
-
-#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac default channels

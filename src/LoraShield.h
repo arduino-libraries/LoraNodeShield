@@ -20,7 +20,6 @@
 #define __LORA_SHIELD_H
 
 
-#define USE_BAND_868
 #define USE_MODEM_LORA
 
 #include "boards/arduino/board.h"
@@ -33,7 +32,7 @@ extern "C"{
 #include "system/gpio.h"
 #include "system/timer.h"
 #include "mac/LoRaMac.h"
-// #include "mac/LoRaMac-api-v3.h"
+#include "mac/LoRaMacTest.h"
 #include "boards/mcu/arduino/utilities.h"
 
 #ifdef __cplusplus
@@ -53,9 +52,7 @@ static enum eDevicState
     DEVICE_STATE_SLEEP
 }DeviceState;
 
-/*!
- * LoRaWAN compliance tests support data
- */
+
 struct ComplianceTest_s
 {
     bool Running;
@@ -69,6 +66,5 @@ struct ComplianceTest_s
     uint8_t DemodMargin;
     uint8_t NbGateways;
 }ComplianceTest;
-
 
 #endif __LORA_SHIELD_H
