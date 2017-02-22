@@ -1192,6 +1192,22 @@ void SX1276Reset( void )
 
 void SX1276SetOpMode( uint8_t opMode )
 {
+#if defined( USE_RADIO_DEBUG )
+    switch( opMode )
+    {
+        case RF_OPMODE_TRANSMITTER:
+            GpioWrite( &DbgPin1, 1 );
+            break;
+        case RF_OPMODE_RECEIVER:
+        case RFLR_OPMODE_RECEIVER_SINGLE:
+            GpioWrite( &DbgPin2, 1 );
+            break;
+        default:
+            GpioWrite( &DbgPin1, 0 );
+            GpioWrite( &DbgPin2, 0 );
+            break;
+    }
+#endif
     if( opMode == RF_OPMODE_SLEEP )
     {
         SX1276SetAntSwLowPower( true );
@@ -1206,7 +1222,7 @@ void SX1276SetOpMode( uint8_t opMode )
 
 void SX1276SetModem( RadioModems_t modem )
 {
-    // assert_param( ( SX1276.Spi.Spi.Instance != NULL ) );
+    //assert_param( ( SX1276.Spi.Spi.Instance != NULL ) );
 
     if( ( SX1276Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_ON ) != 0 )
     {

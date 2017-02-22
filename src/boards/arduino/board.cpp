@@ -23,6 +23,11 @@
  */
 Gpio_t Led13;
 
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPin1;
+Gpio_t DbgPin2;
+#endif
+
 /*!
  * Nested interrupt counter.
  *
@@ -49,10 +54,10 @@ void BoardInitPeriph( void )
 {
     /* Init the GPIO extender pins */
     // GpioInit( &Led13, IRQ_MPL3115, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-	
-	// Switch LED 13 OFF
+
+    // Switch LED 13 OFF
     // GpioWrite( &Led13, 1 );
-	RtcInit();
+    RtcInit();
 }
 
 static void BoardUnusedIoInit( void )
@@ -62,15 +67,20 @@ static void BoardUnusedIoInit( void )
 
 void BoardInitMcu( void )
 {
-	BoardUnusedIoInit( );
-	SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-	SX1276IoInit( );
+    BoardUnusedIoInit( );
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPin1, P_A1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin2, P_A2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
+    SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SX1276IoInit( );
 }
 
 void BoardDeInitMcu( void )
 {
     // Gpio_t ioPin;
-	
+
     // GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     // GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
@@ -81,7 +91,7 @@ void BoardDeInitMcu( void )
 uint32_t BoardGetRandomSeed( void )
 {
     // return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
-}	
+}
 
 void BoardGetUniqueId( uint8_t *id )
 {
@@ -107,7 +117,7 @@ uint8_t GetBoardPowerSource( void )
 
 extern "C" void dbgMsg(const char* msg)
 {
-	Serial.println(msg);
+    Serial.println(msg);
 }
 
 #ifdef USE_FULL_ASSERT
@@ -131,4 +141,3 @@ void assert_failed( uint8_t* file, uint32_t line )
     }
 }
 #endif
-

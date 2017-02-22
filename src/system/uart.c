@@ -35,16 +35,16 @@ void UartInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
     {
         obj->IsInitialized = true;
 
-        // if( uartId == UART_USB_CDC )
-        // {
-// #if defined( USE_USB_CDC )
-            // UartUsbInit( obj, uartId, NC, NC );
-// #endif
-        // }
-        // else
-        // {
-            // UartMcuInit( obj, uartId, tx, rx );
-        // }
+//        if( uartId == UART_USB_CDC )
+//        {
+//#if defined( USE_USB_CDC )
+//            UartUsbInit( obj, uartId, NC, NC );
+//#endif
+//        }
+//        else
+//        {
+//            UartMcuInit( obj, uartId, tx, rx );
+//        }
     }
 }
 
@@ -55,96 +55,96 @@ void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t w
         // UartInit function must be called first.
         assert_param( FAIL );
     }
-    // if( obj->UartId == UART_USB_CDC )
-    // {
-// #if defined( USE_USB_CDC )
-        // UartUsbConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
-// #endif
-    // }
-    // else
-    // {
-        // UartMcuConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
-    // }
+//    if( obj->UartId == UART_USB_CDC )
+//    {
+//#if defined( USE_USB_CDC )
+//        UartUsbConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
+//#endif
+//    }
+//    else
+//    {
+//        UartMcuConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
+//    }
 }
 
 void UartDeInit( Uart_t *obj )
 {
     obj->IsInitialized = false;
-    // if( obj->UartId == UART_USB_CDC )
-    // {
-// #if defined( USE_USB_CDC )
-        // UartUsbDeInit( obj );
-// #endif
-    // }
-    // else
-    // {
-        // UartMcuDeInit( obj );
-    // }
+//    if( obj->UartId == UART_USB_CDC )
+//    {
+//#if defined( USE_USB_CDC )
+//        UartUsbDeInit( obj );
+//#endif
+//    }
+//    else
+//    {
+//        UartMcuDeInit( obj );
+//    }
 }
 
 uint8_t UartPutChar( Uart_t *obj, uint8_t data )
 {
-    // if( obj->UartId == UART_USB_CDC )
-    // {
-// #if defined( USE_USB_CDC )
-        // return UartUsbPutChar( obj, data );
-// #else
-        // return 255; // Not supported
-// #endif
-    // }
-    // else
-    // {
-        // return UartMcuPutChar( obj, data );
-    // }
+//    if( obj->UartId == UART_USB_CDC )
+//    {
+//#if defined( USE_USB_CDC )
+//        return UartUsbPutChar( obj, data );
+//#else
+//        return 255; // Not supported
+//#endif
+//    }
+//    else
+//    {
+//        return UartMcuPutChar( obj, data );
+//    }
 }
 
 uint8_t UartGetChar( Uart_t *obj, uint8_t *data )
 {
-    // if( obj->UartId == UART_USB_CDC )
-    // {
-// #if defined( USE_USB_CDC )
-        // return UartUsbGetChar( obj, data );
-// #else
-        // return 255; // Not supported
-// #endif
-    // }
-    // else
-    // {
-        // return UartMcuGetChar( obj, data );
-    // }
+//    if( obj->UartId == UART_USB_CDC )
+//    {
+//#if defined( USE_USB_CDC )
+//        return UartUsbGetChar( obj, data );
+//#else
+//        return 255; // Not supported
+//#endif
+//    }
+//    else
+//    {
+//        return UartMcuGetChar( obj, data );
+//    }
 }
 
 uint8_t UartPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size )
 {
-    // if( obj->UartId == UART_USB_CDC )
-    // {
-// #if defined( USE_USB_CDC )
-        // return UartUsbPutBuffer( obj, buffer, size );
-// #else
-        // return 255; // Not supported
-// #endif
-    // }
-    // else
-    // {
-        // uint8_t retryCount;
-        // uint16_t i;
-
-        // for( i = 0; i < size; i++ )
-        // {
-            // retryCount = 0;
-            // while( UartPutChar( obj, buffer[i] ) != 0 )
-            // {
-                // retryCount++;
-
-                // Exit if something goes terribly wrong
-                // if( retryCount > TX_BUFFER_RETRY_COUNT )
-                // {
-                    // return 1; // Error
-                // }
-            // }
-        // }
-        // return 0; // OK
-    // }
+//    if( obj->UartId == UART_USB_CDC )
+//    {
+//#if defined( USE_USB_CDC )
+//        return UartUsbPutBuffer( obj, buffer, size );
+//#else
+//        return 255; // Not supported
+//#endif
+//    }
+//    else
+//    {
+//        uint8_t retryCount;
+//        uint16_t i;
+//
+//        for( i = 0; i < size; i++ )
+//        {
+//            retryCount = 0;
+//            while( UartPutChar( obj, buffer[i] ) != 0 )
+//            {
+//                retryCount++;
+//
+//                Exit if something goes terribly wrong
+//                if( retryCount > TX_BUFFER_RETRY_COUNT )
+//                {
+//                    return 1; // Error
+//                }
+//            }
+//        }
+//        return 0; // OK
+//    }
 }
 
 uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nbReadBytes )

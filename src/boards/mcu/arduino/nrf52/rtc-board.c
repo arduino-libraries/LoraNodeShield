@@ -25,8 +25,8 @@
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_DURATION                     0.032          // 1 tick every 32us
-#define RTC_ALARM_TICK_PER_MS                       31.25          // 1/31.25 = tick duration in ms
+#define RTC_ALARM_TICK_DURATION                     0.004          // 1 tick every 32us
+#define RTC_ALARM_TICK_PER_MS                       250          // 1/31.25 = tick duration in ms
 
 typedef uint32_t* RtcCalendar_t;
 TimerTime_t RtcCalendarContext;
@@ -41,12 +41,13 @@ void RtcInit( void )
 {
   	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
 	nrf_timer_bit_width_set(NRF_TIMER3, NRF_TIMER_BIT_WIDTH_32);
-	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_31250Hz);
-	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_31250Hz);
+	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_250kHz);
+	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_250kHz);
 	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
-
+dbgMsg("TICKS:");
+dbgMsgn(ticks);
 	nrf_timer_shorts_enable(NRF_TIMER3, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
-	
+
 	//enable interrupt
 	nrf_timer_int_enable(NRF_TIMER3, NRF_TIMER_INT_COMPARE0_MASK);
 	NVIC_SetPriority(TIMER3_IRQn, 2); //high priority
@@ -59,7 +60,7 @@ void RtcInit( void )
 
 static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 {
-	
+
     // TimerTime_t timeCounter = 0;
     // RtcCalendar_t now;
     // double timeCounterTemp = 0.0;
@@ -185,9 +186,9 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             // timeout -= McuWakeUpTime;
         // }
     // }
-    
+
     // if( timeout > McuWakeUpTime )
-    // {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+    // {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
         // if( timeout < 50 ) // 50 ms
         // {
             // RtcTimerEventAllowsLowPower = false;
@@ -212,13 +213,13 @@ void RtcSetTimeout( uint32_t timeout )
 {
     RtcStartWakeUpAlarm( timeout );
 }
- 
- 
+
+
 void TIMER3_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER3, NRF_TIMER_EVENT_COMPARE0);
 	now++;
 	if(timeout == now)
 		TimerIrqHandler( );
 }
- 
+
  #endif
