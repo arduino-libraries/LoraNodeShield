@@ -206,14 +206,14 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
 
-    // Early out when TimerListHead is null to prevent nullpointer
+    // Early out when TimerListHead is null to prevent null pointer
     if ( TimerListHead == NULL )
     {
         return;
     }
 
     elapsedTime = TimerGetValue( );
-    
+
     if( elapsedTime >= TimerListHead->Timestamp )
     {
         TimerListHead->Timestamp = 0;
@@ -400,10 +400,10 @@ void TimerLowPowerHandler( void )
         else
         {
             HasLoopedThroughMain = 0;
-            // if( GetBoardPowerSource( ) == BATTERY_POWER )
-            // {
-                // RtcEnterLowPowerStopMode( );
-            // }
+            //if( GetBoardPowerSource( ) == BATTERY_POWER )
+            //{
+            //    RtcEnterLowPowerStopMode( );
+            //}
         }
     }
 }

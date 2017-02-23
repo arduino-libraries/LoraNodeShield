@@ -19,7 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 //-------------------------
 
 /*!
- * Flag to indicates if the ADC is initialized 
+ * Flag to indicates if the ADC is initialized
  */
 static bool AdcInitialized = false;
 

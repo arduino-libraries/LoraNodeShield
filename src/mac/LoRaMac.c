@@ -18,7 +18,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jäckle ( STACKFORCE )
 */
 //modified----------------------
-// #include "board.h"
+//#include "board.h"
 #include "boards/arduino/board.h"
 #include "system/timer.h"
 //------------------------------
@@ -1861,6 +1861,7 @@ static void OnRxWindow2TimerEvent( void )
     {
         rxContinuousMode = true;
     }
+
     if( RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LoRaMacParams.Rx2Channel.Datarate, bandwidth, symbTimeout, rxContinuousMode ) == true )
     {
         RxSlot = 1;
@@ -1934,7 +1935,7 @@ static bool SetNextChannel( TimerTime_t* time )
                 }
                 if( Bands[i].TimeOff != 0 )
                 {
-                    nextTxDelay = MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ), nextTxDelay );
+                    nextTxDelay = 0;//MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ), nextTxDelay );
                 }
             }
             else
@@ -3581,6 +3582,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.Rx2Channel = LoRaMacParams.Rx2Channel;
             break;
         }
+        case MIB_RX2_DEFAULT_CHANNEL:
+        {
+            mibGet->Param.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
+            break;
+        }
         case MIB_CHANNELS_DEFAULT_MASK:
         {
             mibGet->Param.ChannelsDefaultMask = LoRaMacParamsDefaults.ChannelsMask;
@@ -3764,6 +3770,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_RX2_CHANNEL:
         {
             LoRaMacParams.Rx2Channel = mibSet->Param.Rx2Channel;
+            break;
+        }
+        case MIB_RX2_DEFAULT_CHANNEL:
+        {
+            LoRaMacParamsDefaults.Rx2Channel = mibSet->Param.Rx2DefaultChannel;
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK:
@@ -4029,7 +4040,11 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
     if( ( Radio.CheckRfFrequency( params.Frequency ) == true ) && ( params.Frequency > 0 ) && ( frequencyInvalid == false ) )
     {
 #if defined( USE_BAND_868 )
-        if( ( params.Frequency >= 865000000 ) && ( params.Frequency <= 868000000 ) )
+        if( ( params.Frequency >= 863000000 ) && ( params.Frequency < 865000000 ) )
+        {
+            band = BAND_G1_2;
+        }
+        else if( ( params.Frequency >= 865000000 ) && ( params.Frequency <= 868000000 ) )
         {
             band = BAND_G1_0;
         }
