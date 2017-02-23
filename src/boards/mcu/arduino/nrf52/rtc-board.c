@@ -44,11 +44,9 @@ void RtcInit( void )
 	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_250kHz);
 	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_250kHz);
 	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
-dbgMsg("TICKS:");
-dbgMsgn(ticks);
 	nrf_timer_shorts_enable(NRF_TIMER3, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
 
-	//enable interrupt
+	// enable interrupt
 	nrf_timer_int_enable(NRF_TIMER3, NRF_TIMER_INT_COMPARE0_MASK);
 	NVIC_SetPriority(TIMER3_IRQn, 2); //high priority
 	NVIC_ClearPendingIRQ(TIMER3_IRQn);
@@ -205,7 +203,15 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
 
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 {
-	timeout = now + timeoutValue;
+	// every 174 ms we loose 1ms
+	uint32_t adjustment = timeoutValue / 164;
+	uint32_t partialAdjustment = adjustment;
+	while(partialAdjustment > 164){
+		//if the adjustment is greater than 174 ms we need to calculate the adjustment over the adjustment
+		adjustment += partialAdjustment / 164;
+		partialAdjustment = partialAdjustment / 164;
+	}
+	timeout = now + timeoutValue + adjustment;
 	RtcCalendarContext = now;
 }
 
