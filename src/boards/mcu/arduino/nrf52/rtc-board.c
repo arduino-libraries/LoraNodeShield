@@ -25,8 +25,8 @@
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_DURATION                     0.004          // 1 tick every 32us
-#define RTC_ALARM_TICK_PER_MS                       250          // 1/31.25 = tick duration in ms
+#define RTC_ALARM_TICK_DURATION                     1          // 1 tick every 32us
+#define RTC_ALARM_TICK_PER_MS                       1          // 1/31.25 = tick duration in ms
 
 typedef uint32_t* RtcCalendar_t;
 TimerTime_t RtcCalendarContext;
@@ -37,12 +37,16 @@ static bool RtcTimerEventAllowsLowPower = false;
 volatile uint32_t timeout;
 
 
+
 void RtcInit( void )
 {
-  	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
+	uint32_t err_code;
+now=0;
+	
+	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
 	nrf_timer_bit_width_set(NRF_TIMER3, NRF_TIMER_BIT_WIDTH_32);
-	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_250kHz);
-	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_250kHz);
+	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_1MHz);
+	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_1MHz);
 	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
 	nrf_timer_shorts_enable(NRF_TIMER3, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
 
@@ -203,15 +207,16 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
 
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 {
-	// every 174 ms we loose 1ms
-	uint32_t adjustment = timeoutValue / 164;
+	// every 164 ms we loose 1ms
+	uint32_t adjustment = timeoutValue / 100;
 	uint32_t partialAdjustment = adjustment;
-	while(partialAdjustment > 164){
+	while(partialAdjustment > 100){
 		//if the adjustment is greater than 174 ms we need to calculate the adjustment over the adjustment
-		adjustment += partialAdjustment / 164;
-		partialAdjustment = partialAdjustment / 164;
+		adjustment += partialAdjustment / 100;
+		partialAdjustment = partialAdjustment / 100;
 	}
-	timeout = now + timeoutValue + adjustment;
+	
+	timeout = now + timeoutValue/* + adjustment*/;
 	RtcCalendarContext = now;
 }
 
@@ -228,4 +233,4 @@ void TIMER3_IRQHandler(void){
 		TimerIrqHandler( );
 }
 
- #endif
+#endif
