@@ -314,18 +314,50 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
-    if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
-    {
+    // if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    // {
         switch( mlmeConfirm->MlmeRequest )
         {
             case MLME_JOIN:
             {
+				            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+            {
                 // Status is OK, node has joined the network
 				node.joined = true;
-                break;
+            }
+            else
+            {
+                // Join was not successful. Try to join again
+                MlmeReq_t mlmeReq;
+		
+				uint8_t DevEui[8];
+				uint8_t AppEui[8];
+				uint8_t AppKey[16];
+				if(node._devEui == NULL)
+					BoardGetUniqueId( DevEui );
+				else
+					convertKey(DevEui, node._devEui, 8);
+				convertKey(AppEui, node._appEui, 8);
+				convertKey(AppKey, node._appKey, 16);
+				
+				mlmeReq.Type = MLME_JOIN;
+
+				mlmeReq.Req.Join.DevEui = DevEui;
+				mlmeReq.Req.Join.AppEui = AppEui;
+				mlmeReq.Req.Join.AppKey = AppKey;
+				mlmeReq.Req.Join.NbTrials = 3;
+				if( node.nextTx == true )
+				{
+					LoRaMacMlmeRequest( &mlmeReq );
+				}
+
+            }
+            break;
             }
             case MLME_LINK_CHECK:
             {
+              if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+              {
                 // Check DemodMargin
                 // Check NbGateways
                 if( ComplianceTest.Running == true )
@@ -334,12 +366,13 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                     ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
                     ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
+              }
                 break;
             }
             default:
                 break;
         }
-    }
+    // }
     node.nextTx = true;
 }
 
@@ -354,7 +387,8 @@ LoRaNode::LoRaNode() :
 	_devEui(NULL),
 	_devAddr(NULL),
 	_nwkSKey(NULL),
-	_appSKey(NULL)
+	_appSKey(NULL),
+	_initialized(false)
 {
 	//
 }
@@ -389,7 +423,7 @@ void LoRaNode::begin(){
 	// SX1276IoInit( );
 	    BoardInitMcu( );
     BoardInitPeriph( );
-
+	_initialized = true;
 	
 	_LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
 	_LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
@@ -491,16 +525,16 @@ void LoRaNode::begin(){
 
 void LoRaNode::sendFrame(char frame[], int dim, int port, bool confirmed){
 	// if(nextTx){
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
+    // MibRequestConfirm_t mibReq;
+    // LoRaMacStatus_t status;
 
-	    mibReq.Type = MIB_NETWORK_JOINED;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
+	    // mibReq.Type = MIB_NETWORK_JOINED;
+    // status = LoRaMacMibGetRequestConfirm( &mibReq );
 
-    if( status == LORAMAC_STATUS_OK )
-    {
-        if( mibReq.Param.IsNetworkJoined == true )
-        {
+    // if( status == LORAMAC_STATUS_OK )
+    // {
+        // if( mibReq.Param.IsNetworkJoined == true )
+        // {
 
 		//TODO: check maximum length
 		for(int i = 0; i < dim; i++)
@@ -508,8 +542,8 @@ void LoRaNode::sendFrame(char frame[], int dim, int port, bool confirmed){
 //	PrepareTxFrame(/*_port*/5);
 AppPort = port;
 	nextTx = send(port, confirmed);
-		}
-	}
+//		}
+	// }
 }
 
 void LoRaNode::poll(int port, bool confirm) {
@@ -518,7 +552,26 @@ void LoRaNode::poll(int port, bool confirm) {
 }
 
 void LoRaNode::showStatus(){
+	if(!_initialized)	// begin SPI if this fuction is called before begin function
+		SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+	Serial.println();
 	Serial.println("LoRa Node parameters:");
+	Serial.print("Frequency:        ");
+#ifdef USE_BAND_868
+	Serial.print(868);
+#else
+	Serial.print(915);
+#endif
+	Serial.println(" MHz");
+	
+	//FXOSC = 32MHz
+	uint8_t msb = Radio.Read(0x02);
+	uint8_t lsb = Radio.Read(0x03);
+	uint32_t br = (msb<<8) | lsb;
+	Serial.print("BitRate:          ");
+	Serial.print(32000000/br);
+	Serial.println(" b/s");
+	Serial.println();
 	if(_otaa){
 		if(_appKey == NULL && _appEui == NULL && _devEui == NULL){
 			Serial.println("No parameters defined yet.");
@@ -539,7 +592,7 @@ void LoRaNode::showStatus(){
 		}
 		Serial.println(" }");
 		if(_devEui != NULL){
-			Serial.print("Device Eui: {");
+			Serial.print("Device Eui:      {");
 			for(int i = 0; i < 8; i += 2){
 				Serial.print(" 0x");
 				Serial.print(_devEui[i]);
@@ -557,9 +610,9 @@ void LoRaNode::showStatus(){
 			Serial.println("No parameters defined yet.");
 			return;
 		}
-		Serial.print("Device address: 0x");
+		Serial.print("Device address:          0x");
 		Serial.println(_devAddr);
-		Serial.print("Network Session Key: {");
+		Serial.print("Network Session Key:     {");
 		for(int i = 0; i < 32; i += 2){
 			Serial.print(" 0x");
 			Serial.print(_nwkSKey[i]);
@@ -574,6 +627,7 @@ void LoRaNode::showStatus(){
 		}
 		Serial.println(" }");
 	} 
+	Serial.println();
 }
 
 // private
