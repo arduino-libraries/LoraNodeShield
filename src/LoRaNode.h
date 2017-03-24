@@ -63,8 +63,8 @@ class LoRaNode {
 	const char *             _devEui;
 	uint8_t                  _appDataSize; //set function
 	uint8_t                  _appData[LORAWAN_APP_DATA_MAX_SIZE];
-	uint8_t					_appPort;
-	bool					_confirmed;
+	uint8_t	                 _appPort;
+	bool                     _confirmed;
 
   private:
 	bool send(int port, bool confirmed);
@@ -76,6 +76,7 @@ class LoRaNode {
     LoRaMacPrimitives_t      _LoRaMacPrimitives;
     LoRaMacCallback_t        _LoRaMacCallbacks;
     MibRequestConfirm_t      _mibReq;
+	bool                     _initialized;
 
 };
 
