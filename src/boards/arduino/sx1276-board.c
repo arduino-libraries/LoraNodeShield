@@ -200,47 +200,119 @@ uint8_t SX1276GetPaSelect( uint32_t channel )
     return RF_PACONFIG_PASELECT_PABOOST;
 }
 
+// void SX1276SetAntSwLowPower( bool status )
+// {
+    // if( RadioIsActive != status )
+    // {
+        // RadioIsActive = status;
+
+        // if( status == false )
+        // {
+            // SX1276AntSwInit( );
+        // }
+        // else
+        // {
+            // SX1276AntSwDeInit( );
+        // }
+    // }
+// }
+
+// void SX1276AntSwInit( void )
+// {
+    // GpioWrite( &AntSwitch, 0 );
+// }
+
+// void SX1276AntSwDeInit( void )
+// {
+    // GpioWrite( &AntSwitch, 0 );
+// }
+
+// void SX1276SetAntSw( uint8_t opMode )
+// {
+    // switch( opMode )
+    // {
+    // case RFLR_OPMODE_TRANSMITTER:
+        // GpioWrite( &AntSwitch, 1 );
+        // break;
+    // case RFLR_OPMODE_RECEIVER:
+    // case RFLR_OPMODE_RECEIVER_SINGLE:
+    // case RFLR_OPMODE_CAD:
+    // default:
+        // GpioWrite( &AntSwitch, 0 );
+        // break;
+    // }
+// }
+
 void SX1276SetAntSwLowPower( bool status )
+
 {
+
     if( RadioIsActive != status )
+
     {
+
         RadioIsActive = status;
 
+ 
+
         if( status == false )
+
         {
-            SX1276AntSwInit( );
+
         }
+
         else
+
         {
-            SX1276AntSwDeInit( );
+
         }
+
     }
+
 }
+
+ 
 
 void SX1276AntSwInit( void )
+
 {
-    GpioWrite( &AntSwitch, 0 );
+
 }
+
+ 
 
 void SX1276AntSwDeInit( void )
+
 {
-    GpioWrite( &AntSwitch, 0 );
+
 }
 
+ 
+
 void SX1276SetAntSw( uint8_t opMode )
+
 {
+
     switch( opMode )
+
     {
+
     case RFLR_OPMODE_TRANSMITTER:
-        GpioWrite( &AntSwitch, 1 );
+
         break;
+
     case RFLR_OPMODE_RECEIVER:
+
     case RFLR_OPMODE_RECEIVER_SINGLE:
+
     case RFLR_OPMODE_CAD:
+
     default:
-        GpioWrite( &AntSwitch, 0 );
+
         break;
+
     }
+
 }
 
 bool SX1276CheckRfFrequency( uint32_t frequency )
