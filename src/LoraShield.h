@@ -53,18 +53,18 @@ static enum eDevicState
 }DeviceState;
 
 
-struct ComplianceTest_s
-{
-    bool Running;
-    uint8_t State;
-    bool IsTxConfirmed;
-    uint8_t AppPort;
-    uint8_t AppDataSize;
-    uint8_t *AppDataBuffer;
-    uint16_t DownLinkCounter;
-    bool LinkCheck;
-    uint8_t DemodMargin;
-    uint8_t NbGateways;
-}ComplianceTest;
+// struct ComplianceTest_s
+// {
+    // bool Running;
+    // uint8_t State;
+    // bool IsTxConfirmed;
+    // uint8_t AppPort;
+    // uint8_t AppDataSize;
+    // uint8_t *AppDataBuffer;
+    // uint16_t DownLinkCounter;
+    // bool LinkCheck;
+    // uint8_t DemodMargin;
+    // uint8_t NbGateways;
+// }ComplianceTest;
 
 #endif __LORA_SHIELD_H

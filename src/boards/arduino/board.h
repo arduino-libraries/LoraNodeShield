@@ -79,7 +79,7 @@ extern "C"{
  */
 extern Gpio_t Led13;
 
-// #define USE_RADIO_DEBUG
+#define USE_RADIO_DEBUG
 
 #if defined( USE_RADIO_DEBUG )
 extern Gpio_t DbgPin1;
