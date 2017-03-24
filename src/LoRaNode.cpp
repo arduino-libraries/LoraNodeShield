@@ -540,7 +540,8 @@ void LoRaNode::sendFrame(char frame[], int dim, int port, bool confirmed){
 		for(int i = 0; i < dim; i++)
 			_appData[i] = frame[i];
 //	PrepareTxFrame(/*_port*/5);
-AppPort = port;
+		AppPort = port;
+		AppDataSize = dim;
 	nextTx = send(port, confirmed);
 //		}
 	// }
