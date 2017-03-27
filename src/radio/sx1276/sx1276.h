@@ -24,19 +24,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 //------------------------------
 
 /*!
- * Radio wakeup time from SLEEP mode
+ * Radio wake-up time from sleep
  */
-#define RADIO_OSC_STARTUP                           1 // [ms]
-
-/*!
- * Radio PLL lock and Mode Ready delay which can vary with the temperature
- */
-#define RADIO_SLEEP_TO_RX                           2 // [ms]
-
-/*!
- * Radio complete Wake-up Time with margin for temperature compensation
- */
-#define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
+#define RADIO_WAKEUP_TIME                           1 // [ms]
 
 /*!
  * Sync word for Private LoRa networks
@@ -65,6 +55,7 @@ typedef struct
     bool     IqInverted;
     bool     RxContinuous;
     uint32_t TxTimeout;
+    uint32_t RxSingleTimeout;
 }RadioFskSettings_t;
 
 /*!
@@ -185,7 +176,7 @@ RadioState_t SX1276GetStatus( void );
 void SX1276SetModem( RadioModems_t modem );
 
 /*!
- * \brief Sets the channels configuration
+ * \brief Sets the channel configuration
  *
  * \param [IN] freq         Channel RF frequency
  */
@@ -237,8 +228,8 @@ uint32_t SX1276Random( void );
  * \param [IN] preambleLen  Sets the Preamble length
  *                          FSK : Number of bytes
  *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
- * \param [IN] symbTimeout  Sets the RxSingle timeout value (LoRa only)
- *                          FSK : N/A ( set to 0 )
+ * \param [IN] symbTimeout  Sets the RxSingle timeout value
+ *                          FSK : timeout number of bytes
  *                          LoRa: timeout in symbols
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
  * \param [IN] payloadLen   Sets payload length when fixed length is used
