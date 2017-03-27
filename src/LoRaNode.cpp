@@ -572,6 +572,45 @@ void LoRaNode::showStatus(){
 	Serial.print("BitRate:          ");
 	Serial.print(32000000/br);
 	Serial.println(" b/s");
+	
+	Serial.print("Datarate          SF");
+	Serial.println((Radio.Read(0x1E) & 0b11110000)>>4);
+	
+	Serial.print("Bandwidth:        ");
+	uint8_t bw = ((Radio.Read(0x1D) & 0b11110000) >> 4);
+	switch(bw){
+		case 0: 
+			Serial.println("7800 Hz");
+		break;
+		case 1: 
+			Serial.println("10400 Hz");
+		break;
+		case 2: 
+			Serial.println("15600 Hz");
+		break;
+		case 3: 
+			Serial.println("20800 Hz");
+		break;
+		case 4: 
+			Serial.println("31250 Hz");
+		break;
+		case 5: 
+			Serial.println("41700 Hz");
+		break;
+		case 6: 
+			Serial.println("62500 Hz");
+		break;
+		case 7: 
+			Serial.println("125000 Hz");
+		break;
+		case 8: 
+			Serial.println("250000 Hz");
+		break;
+		case 9: 
+			Serial.println("500000 Hz");
+		break;
+	}
+	
 	Serial.println();
 	if(_otaa){
 		if(_appKey == NULL && _appEui == NULL && _devEui == NULL){
