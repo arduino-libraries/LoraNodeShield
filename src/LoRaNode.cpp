@@ -260,7 +260,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.NbTrials = 3;
 
                         LoRaMacMlmeRequest( &mlmeReq );
-                        DeviceState = DEVICE_STATE_SLEEP;
+                        // DeviceState = DEVICE_STATE_SLEEP;
 
                     }
                     break;
