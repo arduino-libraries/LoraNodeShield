@@ -20,7 +20,25 @@
 #define __LORA_NODE_H_
 
 #include "Arduino.h"
-#include "LoraShield.h"
+// #include "LoraShield.h"
+#define USE_MODEM_LORA
+
+#include "boards/arduino/board.h"
+
+#ifdef __cplusplus
+extern "C"{
+#endif //__cplusplus
+
+#include "radio/radio.h"
+#include "system/gpio.h"
+#include "system/timer.h"
+#include "mac/LoRaMac.h"
+#include "mac/LoRaMacTest.h"
+#include "boards/mcu/arduino/utilities.h"
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 
 #define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
