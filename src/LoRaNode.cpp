@@ -62,22 +62,18 @@ void convertKey(uint8_t* skey, const char * _skey, uint8_t len){
 
 static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
 {
-    Serial.print("McpsConfirm = ");
-Serial.println(mcpsConfirm->Status);
  if( mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
         switch( mcpsConfirm->McpsRequest )
         {
             case MCPS_UNCONFIRMED:
             {
-              Serial.println("EVENT UNCONFIRMED RECEIVED");
                 // Check Datarate
                 // Check TxPower
                 break;
             }
             case MCPS_CONFIRMED:
             {
-              Serial.println("EVENT CONFIRMED RECEIVED");
                 // Check Datarate
                 // Check TxPower
                 // Check AckReceived
@@ -86,16 +82,12 @@ Serial.println(mcpsConfirm->Status);
             }
             case MCPS_PROPRIETARY:
             {
-              Serial.println("PROPRIETARY RECEIVED");
                 break;
             }
             default:
-            Serial.println("default XXX");
                 break;
         }
     }
-    else
-      Serial.println("status not ok");
     node.nextTx = true;
 }
 
@@ -107,7 +99,6 @@ Serial.println(mcpsConfirm->Status);
  */
 static void McpsIndication( McpsIndication_t *mcpsIndication )
 {
-   Serial.println("MCPS Indication");
     if( mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK )
     {
         return;
@@ -144,21 +135,11 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     // Check Rssi
     // Check Snr
     // Check RxSlot
-  Serial.println("RECEIVED SOMETHING!!!");
-//   if( ComplianceTest.Running == true )
-//   {
-		Serial.print("count = ");
-        Serial.println(++ComplianceTest.DownLinkCounter);
-//   }
 
     if( mcpsIndication->RxData == true )
     {
 		if(node.onReceiveCallback)
 			node.onReceiveCallback(mcpsIndication->Buffer, mcpsIndication->BufferSize, mcpsIndication->Port);
-      // Serial.println("Data:");
-      // for(int i=0; i<mcpsIndication->BufferSize; i++)
-        // Serial.print(mcpsIndication->Buffer[i]);
-      // Serial.println();
         switch( mcpsIndication->Port )
         {
         case 1: // The application LED can be controlled on port 1 or 2
@@ -417,9 +398,7 @@ void LoRaNode::joinABP(const char * devAddr, const char * nwkSKey, const char * 
 }
 
 void LoRaNode::begin(){
-	// SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-	// SX1276IoInit( );
-	    BoardInitMcu( );
+	BoardInitMcu( );
     BoardInitPeriph( );
 	_initialized = true;
 	
@@ -522,27 +501,13 @@ void LoRaNode::begin(){
 }
 
 void LoRaNode::sendFrame(char frame[], int dim, int port, bool confirmed){
-	// if(nextTx){
-    // MibRequestConfirm_t mibReq;
-    // LoRaMacStatus_t status;
-
-	    // mibReq.Type = MIB_NETWORK_JOINED;
-    // status = LoRaMacMibGetRequestConfirm( &mibReq );
-
-    // if( status == LORAMAC_STATUS_OK )
-    // {
-        // if( mibReq.Param.IsNetworkJoined == true )
-        // {
-
 		//TODO: check maximum length
 		for(int i = 0; i < dim; i++)
 			_appData[i] = frame[i];
-//	PrepareTxFrame(/*_port*/5);
+
 		AppPort = port;
 		AppDataSize = dim;
-	nextTx = send(port, confirmed);
-		// }
-	// }
+		nextTx = send(port, confirmed);
 }
 
 void LoRaNode::poll(int port, bool confirm) {
@@ -676,7 +641,6 @@ bool LoRaNode::send(int port, bool confirmed){
 
     if( LoRaMacQueryTxPossible(AppDataSize, &txInfo) != LORAMAC_STATUS_OK )
     {
-        Serial.println("empty frame sent");
       // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -687,8 +651,7 @@ bool LoRaNode::send(int port, bool confirmed){
     {
         if(confirmed == false)
         {
-            Serial.println("data pck unconfirmed prepared");
-          mcpsReq.Type = MCPS_UNCONFIRMED;
+			mcpsReq.Type = MCPS_UNCONFIRMED;
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = _appData;
             mcpsReq.Req.Unconfirmed.fBufferSize = AppDataSize;
@@ -696,8 +659,7 @@ bool LoRaNode::send(int port, bool confirmed){
         }
         else
         {
-         Serial.println("data pck confirmed prepared");
-             mcpsReq.Type = MCPS_CONFIRMED;
+            mcpsReq.Type = MCPS_CONFIRMED;
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = _appData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
@@ -706,14 +668,10 @@ bool LoRaNode::send(int port, bool confirmed){
         }
     }
 
-    int res = LoRaMacMcpsRequest( &mcpsReq );
-    if( res/* = LoRaMacMcpsRequest( &mcpsReq )*/ == LORAMAC_STATUS_OK )
+    if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
     {
-      Serial.println("send OK");
         return false;
     }
-      Serial.print("send ERROR = ");
-      Serial.println(res);
     return true;
 }
 
