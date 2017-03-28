@@ -314,8 +314,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
-    // if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
-    // {
         switch( mlmeConfirm->MlmeRequest )
         {
             case MLME_JOIN:
@@ -476,9 +474,9 @@ void LoRaNode::begin(){
 		mlmeReq.Req.Join.AppEui = AppEui;
 		mlmeReq.Req.Join.AppKey = AppKey;
 		mlmeReq.Req.Join.NbTrials = 3;
-		if( nextTx == true )
-		{
+		do{
 			LoRaMacMlmeRequest( &mlmeReq );
+			delay(7000);
 		}
 		
 		while(!joined);
@@ -543,7 +541,7 @@ void LoRaNode::sendFrame(char frame[], int dim, int port, bool confirmed){
 		AppPort = port;
 		AppDataSize = dim;
 	nextTx = send(port, confirmed);
-//		}
+		// }
 	// }
 }
 
