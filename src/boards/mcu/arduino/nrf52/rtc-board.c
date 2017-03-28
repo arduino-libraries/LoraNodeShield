@@ -41,12 +41,17 @@ volatile uint32_t timeout;
 void RtcInit( void )
 {
 	uint32_t err_code;
-now=0;
-	
+	now=0;
+
+	sd_clock_hfclk_request();
+	uint32_t runn = 0;
+	do{sd_clock_hfclk_is_running(&runn);}
+	while(!runn);
+
 	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
 	nrf_timer_bit_width_set(NRF_TIMER3, NRF_TIMER_BIT_WIDTH_32);
-	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_1MHz);
-	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_1MHz);
+	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_16MHz);
+	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_16MHz);
 	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
 	nrf_timer_shorts_enable(NRF_TIMER3, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
 
