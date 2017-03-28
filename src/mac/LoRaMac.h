@@ -26,7 +26,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  *
- * \author    Daniel Jäckle ( STACKFORCE )
+ * \author    Daniel JÃ¤ckle ( STACKFORCE )
  *
  * \defgroup  LORAMAC LoRa MAC layer implementation
  *            This module specifies the API implementation of the LoRaMAC layer.
@@ -51,17 +51,6 @@
 //modified-------------------------------
 #include "boards/arduino/rtc-board.h" //added this row
 //---------------------------------------
-
-/*!
- * System overall timing error in milliseconds. 
- * [-DEFAULT_SYSTEM_MAX_RX_ERROR : +DEFAULT_SYSTEM_MAX_RX_ERROR]
- */
-#define DEFAULT_SYSTEM_MAX_RX_ERROR                 10
-
-/*!
- * Minimum required number of symbols to detect an Rx frame
- */
-#define DEFAULT_MIN_RX_SYMBOLS                       6
 
 /*!
  * Beacon interval in ms
@@ -580,10 +569,6 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,
     /*!
-     * An Rx error occurred on receive window 1
-     */
-    LORAMAC_EVENT_INFO_STATUS_RX1_ERROR,
-    /*!
      * An Rx error occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_ERROR,
@@ -1056,10 +1041,6 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
-    /*!
-     * Provides the number of retransmissions
-     */
-    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 /*!
@@ -1612,7 +1593,7 @@ typedef struct sLoRaMacCallback
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks );
-
+void LoRaMacTestSetDutyCycleOn( bool enable );
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
  *          a given payload size. The LoRaMAC takes scheduled MAC commands into
