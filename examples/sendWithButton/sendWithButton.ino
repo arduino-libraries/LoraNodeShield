@@ -1,5 +1,9 @@
 #include "SPI.h"
 #include "LoRaNode.h"
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 const char * devAddr = "26011AD0";
 const char * nwkSessionKey = "F60F30Cf0900ce09E07301104E02b0D3";
@@ -14,6 +18,7 @@ long debounceDelay = 50;
 const int led = 6;
 const int button = A2;
 
+char frame[] = {0x00};
 
 void setup() {  
   pinMode(31, OUTPUT);
@@ -31,10 +36,11 @@ void setup() {
   node.begin();    
   
   node.showStatus();
+  
+  mlx.begin();
 }
 
 void loop() {
-   char frame[] = {0x00, 0x00, 0x00, 0xA0};
 
   //debounce button to send the frame just once at pressure
   int reading = digitalRead(button);
@@ -47,7 +53,9 @@ void loop() {
       if (reading != buttonState) {
       buttonState = reading;
       if (buttonState == HIGH) {
-        //send
+        // read a value from the temperature sensor and send it
+        int temp = mlx.readAmbientTempC();
+        frame[0] = temp;
         node.sendFrame(frame, sizeof(frame), 2);
         Serial.println("data sent");
       }
