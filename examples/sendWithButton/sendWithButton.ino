@@ -1,9 +1,15 @@
 #include "SPI.h"
 #include "LoRaNode.h"
 
+/*
 const char * devAddr = "26011AD0";
 const char * nwkSessionKey = "F60F30Cf0900ce09E07301104E02b0D3";
 const char * appSessionKey = "0CE04d0b30C80970D30a00A101d01001";
+*/
+
+const char * appEui = "00250C0000010001";
+const char * appKey = "0E708C34BBDA282AA8691318BCD06BBB";
+const char * devEui = "00250C010000062F";
 
 int ledState = LOW;
 int lastButtonState = LOW;
@@ -24,7 +30,8 @@ void setup() {
   
   Serial.begin(9600);
    
-  node.joinABP(devAddr, nwkSessionKey, appSessionKey);
+  //node.joinABP(devAddr, nwkSessionKey, appSessionKey);
+  node.joinOTAA(appEui, appKey, devEui);
   //register callback for incoming messages
   node.onReceive(readMsg);
   //begin initialization
