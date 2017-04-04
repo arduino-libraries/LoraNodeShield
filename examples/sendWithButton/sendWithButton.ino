@@ -14,6 +14,7 @@ const char * devEui = "00250C010000062F";
 int ledState = LOW;
 int lastButtonState = LOW;
 int buttonState;
+char buttonCnt = 0;
 long lastDebounceTime = 0;
 long debounceDelay = 50;
 
@@ -41,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-   char frame[] = {0x00, 0x00, 0x00, 0xA0};
+   char frame[3] = {0x00, 0x01, 0x00};
 
   //debounce button to send the frame just once at pressure
   int reading = digitalRead(button);
@@ -55,6 +56,7 @@ void loop() {
       buttonState = reading;
       if (buttonState == HIGH) {
         //send
+        frame[2] = ++buttonCnt;
         node.sendFrame(frame, sizeof(frame), 2);
         Serial.println("data sent");
       }
