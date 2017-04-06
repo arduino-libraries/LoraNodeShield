@@ -19,6 +19,12 @@
 #include "board.h"
 
 /*!
+ * Unique Devices IDs register set (nRF52)
+ */
+#define         ID1                                 ( 0x10000060 )
+#define         ID2                                 ( 0x10000064 )
+
+/*!
  * IO Extander pins objects
  */
 Gpio_t Led13;
@@ -71,7 +77,7 @@ void BoardInitMcu( void )
 
 #if defined( USE_RADIO_DEBUG )
     GpioInit( &DbgPin1, P_A1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin2, P_A5, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin2, P_A2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
     SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
@@ -95,14 +101,14 @@ uint32_t BoardGetRandomSeed( void )
 
 void BoardGetUniqueId( uint8_t *id )
 {
-    // id[7] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 24;
-    // id[6] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 16;
-    // id[5] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 8;
-    // id[4] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) );
-    // id[3] = ( ( *( uint32_t* )ID2 ) ) >> 24;
-    // id[2] = ( ( *( uint32_t* )ID2 ) ) >> 16;
-    // id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
-    // id[0] = ( ( *( uint32_t* )ID2 ) );
+    id[7] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID2 ) ) >> 24;
+    id[6] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID2 ) ) >> 16;
+    id[5] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID2 ) ) >> 8;
+    id[4] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID2 ) );
+    id[3] = ( ( *( uint32_t* )ID2 ) ) >> 24;
+    id[2] = ( ( *( uint32_t* )ID2 ) ) >> 16;
+    id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
+    id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
 uint8_t BoardGetBatteryLevel( void )

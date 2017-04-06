@@ -458,6 +458,7 @@ void LoRaNode::begin(){
 		do{
 			LoRaMacMlmeRequest( &mlmeReq );
 			delay(7000);
+			
 		}
 		
 		while(!joined);
@@ -602,6 +603,18 @@ void LoRaNode::showStatus(){
 				Serial.print(" 0x");
 				Serial.print(_devEui[i]);
 				Serial.print(_devEui[i+1]);
+			}
+			Serial.println(" }");
+		}
+		else{
+			uint8_t DevEui[8];
+			BoardGetUniqueId( DevEui );
+			Serial.print("Device Eui:      {");
+			for(int i = 0; i < 8; i++){
+				Serial.print(" 0x");
+				if(DevEui[i] <= 0x0F)
+					Serial.print(0);
+				Serial.print(DevEui[i], HEX);
 			}
 			Serial.println(" }");
 		}
