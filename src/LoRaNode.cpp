@@ -18,6 +18,8 @@
 
 #include "LoRaNode.h"
 
+#define NR_OF_TRIALS	48
+
 struct ComplianceTest_s
 {
     bool Running;
@@ -257,7 +259,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = DevEui;
                         mlmeReq.Req.Join.AppEui = (unsigned char*)node._appEui;
                         mlmeReq.Req.Join.AppKey = (unsigned char*)node._appKey;
-                        mlmeReq.Req.Join.NbTrials = 3;
+                        mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         // DeviceState = DEVICE_STATE_SLEEP;
@@ -324,7 +326,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 				mlmeReq.Req.Join.DevEui = DevEui;
 				mlmeReq.Req.Join.AppEui = AppEui;
 				mlmeReq.Req.Join.AppKey = AppKey;
-				mlmeReq.Req.Join.NbTrials = 3;
+				mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 				if( node.nextTx == true )
 				{
 					LoRaMacMlmeRequest( &mlmeReq );
@@ -452,7 +454,7 @@ void LoRaNode::begin(){
 		mlmeReq.Req.Join.DevEui = DevEui;
 		mlmeReq.Req.Join.AppEui = AppEui;
 		mlmeReq.Req.Join.AppKey = AppKey;
-		mlmeReq.Req.Join.NbTrials = 3;
+		mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 		do{
 			LoRaMacMlmeRequest( &mlmeReq );
 			delay(7000);
@@ -663,7 +665,7 @@ bool LoRaNode::send(int port, bool confirmed){
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = _appData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Confirmed.NbTrials = 8;
+            mcpsReq.Req.Confirmed.NbTrials = NR_OF_TRIALS;
             mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
         }
     }
