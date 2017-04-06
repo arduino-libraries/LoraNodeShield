@@ -598,7 +598,7 @@ void LoRaNode::showStatus(){
 		Serial.println(" }");
 		if(_devEui != NULL){
 			Serial.print("Device Eui:      {");
-			for(int i = 0; i < 8; i += 2){
+			for(int i = 0; i < 16; i += 2){
 				Serial.print(" 0x");
 				Serial.print(_devEui[i]);
 				Serial.print(_devEui[i+1]);
