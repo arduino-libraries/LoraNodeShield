@@ -18,6 +18,10 @@
 
 #include "LoRaNode.h"
 
+#ifdef ARDUINO_ARCH_NRF52
+  #include <LowPower.h>
+#endif
+
 #define NR_OF_TRIALS	48
 
 struct ComplianceTest_s
@@ -646,6 +650,14 @@ void LoRaNode::showStatus(){
 		Serial.println(" }");
 	} 
 	Serial.println();
+}
+
+void LoRaNode::sleep(uint32_t ms){
+#ifdef ARDUINO_ARCH_NRF52
+  LowPower.standby(ms);
+#else
+  delay(ms);
+#endif
 }
 
 // private

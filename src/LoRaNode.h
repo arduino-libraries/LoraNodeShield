@@ -72,7 +72,7 @@ class LoRaNode {
 	void sendFrame(char frame[], int dim, int port = 1, bool confirmed = false);  //function to send a frame
 	void poll(int port, bool confirm = false);	//function to send a dummy frame in order to open the receive windows
 	void showStatus();	//print node parameters
-	
+	void sleep(uint32_t ms);
 	bool                     nextTx;
 	bool                     joined;
 	LoRaNodeEventHandler     onReceiveCallback;
