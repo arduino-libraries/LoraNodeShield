@@ -1,5 +1,6 @@
 #include "SPI.h"
 #include "LoRaNode.h"
+
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
 
@@ -15,6 +16,7 @@ const char * appEui = "00250C0000010001";
 const char * appKey = "0E708C34BBDA282AA8691318BCD06BBB";
 const char * devEui = "00250C010000062F";
 
+
 int ledState = LOW;
 int lastButtonState = LOW;
 int buttonState;
@@ -24,6 +26,7 @@ long debounceDelay = 50;
 
 const int led = 6;
 const int button = A2;
+
 //              | cayenne button | cayenne temp sensor   |
 char frame[7] = {0x00, 0x01, 0x00, 0x01, 0x67, 0x00, 0x00};
 
@@ -36,6 +39,7 @@ void setup() {
   
   Serial.begin(9600);
    
+
   //node.joinABP(devAddr, nwkSessionKey, appSessionKey);
   node.joinOTAA(appEui, appKey, devEui);
   //register callback for incoming messages
@@ -44,6 +48,7 @@ void setup() {
   node.begin();    
   
   node.showStatus();
+
   
   mlx.begin();
 }
@@ -60,13 +65,14 @@ void loop() {
       if (reading != buttonState) {
       buttonState = reading;
       if (buttonState == HIGH) {
+
         // read a value from the temperature sensor and send it
         float temp = mlx.readAmbientTempC();
-		// temperature value has to be 2 byte long (MSB)
-		// example: 27.25°C => 2725
-		int temperature = temp * 100;
+		    // temperature value has to be 2 byte long (MSB)
+		    // example: 27.25°C => 2725
+		    int temperature = temp * 100;
         frame[5] = (temperature & 0xFF00) >> 8;
-		frame[6] = temperature & 0x00FF;
+		    frame[6] = temperature & 0x00FF;
         // send button count also
         frame[2] = ++buttonCnt;
         node.sendFrame(frame, sizeof(frame), 2);

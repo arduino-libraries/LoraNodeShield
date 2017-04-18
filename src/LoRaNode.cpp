@@ -462,7 +462,7 @@ void LoRaNode::begin(){
 		do{
 			LoRaMacMlmeRequest( &mlmeReq );
 			delay(7000);
-			
+      
 		}
 		
 		while(!joined);
@@ -580,7 +580,7 @@ void LoRaNode::showStatus(){
 				Serial.println("500000 Hz");
 			break;
 		}
-	}	
+	}				
 	
 	Serial.println();
 	if(_otaa){
@@ -652,6 +652,7 @@ void LoRaNode::showStatus(){
 	} 
 	Serial.println();
 }
+
 
 void LoRaNode::sleep(uint32_t ms){
 #ifdef ARDUINO_ARCH_NRF52
