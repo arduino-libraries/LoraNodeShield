@@ -18,6 +18,12 @@
 
 #include "LoRaNode.h"
 
+#ifdef ARDUINO_ARCH_NRF52
+  #include <LowPower.h>
+#endif
+
+#define NR_OF_TRIALS	48
+
 struct ComplianceTest_s
 {
     bool Running;
@@ -257,7 +263,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = DevEui;
                         mlmeReq.Req.Join.AppEui = (unsigned char*)node._appEui;
                         mlmeReq.Req.Join.AppKey = (unsigned char*)node._appKey;
-                        mlmeReq.Req.Join.NbTrials = 3;
+                        mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         // DeviceState = DEVICE_STATE_SLEEP;
@@ -324,7 +330,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 				mlmeReq.Req.Join.DevEui = DevEui;
 				mlmeReq.Req.Join.AppEui = AppEui;
 				mlmeReq.Req.Join.AppKey = AppKey;
-				mlmeReq.Req.Join.NbTrials = 3;
+				mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 				if( node.nextTx == true )
 				{
 					LoRaMacMlmeRequest( &mlmeReq );
@@ -452,10 +458,11 @@ void LoRaNode::begin(){
 		mlmeReq.Req.Join.DevEui = DevEui;
 		mlmeReq.Req.Join.AppEui = AppEui;
 		mlmeReq.Req.Join.AppKey = AppKey;
-		mlmeReq.Req.Join.NbTrials = 3;
+		mlmeReq.Req.Join.NbTrials = NR_OF_TRIALS;
 		do{
 			LoRaMacMlmeRequest( &mlmeReq );
 			delay(7000);
+      
 		}
 		
 		while(!joined);
@@ -516,8 +523,6 @@ void LoRaNode::poll(int port, bool confirm) {
 }
 
 void LoRaNode::showStatus(){
-	if(!_initialized)	// begin SPI if this fuction is called before begin function
-		SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
 	Serial.println();
 	Serial.println("LoRa Node parameters:");
 	Serial.print("Frequency:        ");
@@ -527,52 +532,55 @@ void LoRaNode::showStatus(){
 	Serial.print(915);
 #endif
 	Serial.println(" MHz");
+
+	if(_initialized){	// print these data only if begin function was called
 	
-	//FXOSC = 32MHz
-	uint8_t msb = Radio.Read(0x02);
-	uint8_t lsb = Radio.Read(0x03);
-	uint32_t br = (msb<<8) | lsb;
-	Serial.print("BitRate:          ");
-	Serial.print(32000000/br);
-	Serial.println(" b/s");
-	
-	Serial.print("Datarate          SF");
-	Serial.println((Radio.Read(0x1E) & 0b11110000)>>4);
-	
-	Serial.print("Bandwidth:        ");
-	uint8_t bw = ((Radio.Read(0x1D) & 0b11110000) >> 4);
-	switch(bw){
-		case 0: 
-			Serial.println("7800 Hz");
-		break;
-		case 1: 
-			Serial.println("10400 Hz");
-		break;
-		case 2: 
-			Serial.println("15600 Hz");
-		break;
-		case 3: 
-			Serial.println("20800 Hz");
-		break;
-		case 4: 
-			Serial.println("31250 Hz");
-		break;
-		case 5: 
-			Serial.println("41700 Hz");
-		break;
-		case 6: 
-			Serial.println("62500 Hz");
-		break;
-		case 7: 
-			Serial.println("125000 Hz");
-		break;
-		case 8: 
-			Serial.println("250000 Hz");
-		break;
-		case 9: 
-			Serial.println("500000 Hz");
-		break;
-	}
+		//FXOSC = 32MHz
+		uint8_t msb = Radio.Read(0x02);
+		uint8_t lsb = Radio.Read(0x03);
+		uint32_t br = (msb<<8) | lsb;
+		Serial.print("BitRate:          ");
+		Serial.print(32000000/br);
+		Serial.println(" b/s");
+		
+		Serial.print("Datarate          SF");
+		Serial.println((Radio.Read(0x1E) & 0b11110000)>>4);
+		
+		Serial.print("Bandwidth:        ");
+		uint8_t bw = ((Radio.Read(0x1D) & 0b11110000) >> 4);
+		switch(bw){
+			case 0: 
+				Serial.println("7800 Hz");
+			break;
+			case 1: 
+				Serial.println("10400 Hz");
+			break;
+			case 2: 
+				Serial.println("15600 Hz");
+			break;
+			case 3: 
+				Serial.println("20800 Hz");
+			break;
+			case 4: 
+				Serial.println("31250 Hz");
+			break;
+			case 5: 
+				Serial.println("41700 Hz");
+			break;
+			case 6: 
+				Serial.println("62500 Hz");
+			break;
+			case 7: 
+				Serial.println("125000 Hz");
+			break;
+			case 8: 
+				Serial.println("250000 Hz");
+			break;
+			case 9: 
+				Serial.println("500000 Hz");
+			break;
+		}
+	}				
 	
 	Serial.println();
 	if(_otaa){
@@ -596,10 +604,22 @@ void LoRaNode::showStatus(){
 		Serial.println(" }");
 		if(_devEui != NULL){
 			Serial.print("Device Eui:      {");
-			for(int i = 0; i < 8; i += 2){
+			for(int i = 0; i < 16; i += 2){
 				Serial.print(" 0x");
 				Serial.print(_devEui[i]);
 				Serial.print(_devEui[i+1]);
+			}
+			Serial.println(" }");
+		}
+		else{
+			uint8_t DevEui[8];
+			BoardGetUniqueId( DevEui );
+			Serial.print("Device Eui:      {");
+			for(int i = 0; i < 8; i++){
+				Serial.print(" 0x");
+				if(DevEui[i] <= 0x0F)
+					Serial.print(0);
+				Serial.print(DevEui[i], HEX);
 			}
 			Serial.println(" }");
 		}
@@ -633,6 +653,15 @@ void LoRaNode::showStatus(){
 	Serial.println();
 }
 
+
+void LoRaNode::sleep(uint32_t ms){
+#ifdef ARDUINO_ARCH_NRF52
+  LowPower.standby(ms);
+#else
+  delay(ms);
+#endif
+}
+
 // private
 
 bool LoRaNode::send(int port, bool confirmed){
@@ -663,7 +692,7 @@ bool LoRaNode::send(int port, bool confirmed){
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = _appData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Confirmed.NbTrials = 8;
+            mcpsReq.Req.Confirmed.NbTrials = NR_OF_TRIALS;
             mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
         }
     }

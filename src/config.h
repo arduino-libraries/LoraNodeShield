@@ -20,4 +20,4 @@
 #define USE_BAND_868
 
 // use this define if you are in US region
- // #define USE_BAND_915
+// #define USE_BAND_915
