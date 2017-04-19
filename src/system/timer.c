@@ -20,6 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "timer.h"
 //-----------------------
 
+
 /*!
  * This flag is used to make sure we have looped through the main several time to avoid race issues
  */
@@ -88,11 +89,11 @@ void TimerStart( TimerEvent_t *obj )
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
-    __disable_irq( );
+    BoardDisableIrq( );
 
     if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
     {
-        __enable_irq( );
+        BoardEnableIrq( );
         return;
     }
 
@@ -128,7 +129,7 @@ void TimerStart( TimerEvent_t *obj )
              TimerInsertTimer( obj, remainingTime );
         }
     }
-    __enable_irq( );
+    BoardEnableIrq( );
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
@@ -205,8 +206,14 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
 
+    // Early out when TimerListHead is null to prevent null pointer
+    if ( TimerListHead == NULL )
+    {
+        return;
+    }
+
     elapsedTime = TimerGetValue( );
-    
+
     if( elapsedTime >= TimerListHead->Timestamp )
     {
         TimerListHead->Timestamp = 0;
@@ -242,7 +249,7 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
-    __disable_irq( );
+    BoardDisableIrq( );
 
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
@@ -253,7 +260,7 @@ void TimerStop( TimerEvent_t *obj )
     // List is empty or the Obj to stop does not exist
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
-        __enable_irq( );
+        BoardEnableIrq( );
         return;
     }
 
@@ -324,7 +331,7 @@ void TimerStop( TimerEvent_t *obj )
             }
         }
     }
-    __enable_irq( );
+    BoardEnableIrq( );
 }
 
 static bool TimerExists( TimerEvent_t *obj )
@@ -378,7 +385,7 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
     HasLoopedThroughMain = 0;
-    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
     RtcSetTimeout( obj->Timestamp );
 }
 
@@ -393,10 +400,10 @@ void TimerLowPowerHandler( void )
         else
         {
             HasLoopedThroughMain = 0;
-            // if( GetBoardPowerSource( ) == BATTERY_POWER )
-            // {
-                // RtcEnterLowPowerStopMode( );
-            // }
+            //if( GetBoardPowerSource( ) == BATTERY_POWER )
+            //{
+            //    RtcEnterLowPowerStopMode( );
+            //}
         }
     }
 }

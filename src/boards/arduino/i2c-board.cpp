@@ -14,7 +14,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
 #include "i2c-board.h"
-#include "Wire.h"
+//#include "Wire.h"
 
 /*!
  *  The value of the maximal timeout for I2C waiting loops
@@ -46,8 +46,8 @@ void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda )
 
 void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAckEnable, I2cAckAddrMode AckAddrMode, uint32_t I2cFrequency )
 {
-	Wire.setClock(I2cFrequency);
-	Wire.begin();
+	// Wire.setClock(I2cFrequency);
+	// Wire.begin();
     // I2C_HandleTypeDef *i2c;
 
     // __HAL_RCC_I2C1_CLK_ENABLE( );
@@ -75,7 +75,7 @@ void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAck
 
 void I2cMcuDeInit( I2c_t *obj )
 {
-	Wire.end();
+	// Wire.end();
     // I2C_HandleTypeDef *i2c;
     // i2c = &obj->I2c;
 

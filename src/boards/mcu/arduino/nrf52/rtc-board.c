@@ -25,8 +25,8 @@
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_DURATION                     0.032          // 1 tick every 32us
-#define RTC_ALARM_TICK_PER_MS                       31.25          // 1/31.25 = tick duration in ms
+#define RTC_ALARM_TICK_DURATION                     1          // 1 tick every 32us
+#define RTC_ALARM_TICK_PER_MS                       1          // 1/31.25 = tick duration in ms
 
 typedef uint32_t* RtcCalendar_t;
 TimerTime_t RtcCalendarContext;
@@ -37,17 +37,25 @@ static bool RtcTimerEventAllowsLowPower = false;
 volatile uint32_t timeout;
 
 
+
 void RtcInit( void )
 {
-  	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
-	nrf_timer_bit_width_set(NRF_TIMER3, NRF_TIMER_BIT_WIDTH_32);
-	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_31250Hz);
-	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_31250Hz);
-	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
+	uint32_t err_code;
+	now=0;
 
+	sd_clock_hfclk_request();
+	uint32_t runn = 0;
+	do{sd_clock_hfclk_is_running(&runn);}
+	while(!runn);
+
+	nrf_timer_mode_set(NRF_TIMER3, NRF_TIMER_MODE_TIMER);
+	nrf_timer_bit_width_set(NRF_TIMER3, NRF_TIMER_BIT_WIDTH_32);
+	nrf_timer_frequency_set(NRF_TIMER3, NRF_TIMER_FREQ_16MHz);
+	uint32_t ticks=nrf_timer_ms_to_ticks(1, NRF_TIMER_FREQ_16MHz);
+	nrf_timer_cc_write(NRF_TIMER3, NRF_TIMER_CC_CHANNEL0, ticks);
 	nrf_timer_shorts_enable(NRF_TIMER3, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
-	
-	//enable interrupt
+
+	// enable interrupt
 	nrf_timer_int_enable(NRF_TIMER3, NRF_TIMER_INT_COMPARE0_MASK);
 	NVIC_SetPriority(TIMER3_IRQn, 2); //high priority
 	NVIC_ClearPendingIRQ(TIMER3_IRQn);
@@ -59,7 +67,7 @@ void RtcInit( void )
 
 static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 {
-	
+
     // TimerTime_t timeCounter = 0;
     // RtcCalendar_t now;
     // double timeCounterTemp = 0.0;
@@ -185,9 +193,9 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             // timeout -= McuWakeUpTime;
         // }
     // }
-    
+
     // if( timeout > McuWakeUpTime )
-    // {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+    // {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
         // if( timeout < 50 ) // 50 ms
         // {
             // RtcTimerEventAllowsLowPower = false;
@@ -204,7 +212,16 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
 
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 {
-	timeout = now + timeoutValue;
+	// every 164 ms we loose 1ms
+	uint32_t adjustment = timeoutValue / 100;
+	uint32_t partialAdjustment = adjustment;
+	while(partialAdjustment > 100){
+		//if the adjustment is greater than 174 ms we need to calculate the adjustment over the adjustment
+		adjustment += partialAdjustment / 100;
+		partialAdjustment = partialAdjustment / 100;
+	}
+	
+	timeout = now + timeoutValue/* + adjustment*/;
 	RtcCalendarContext = now;
 }
 
@@ -212,13 +229,13 @@ void RtcSetTimeout( uint32_t timeout )
 {
     RtcStartWakeUpAlarm( timeout );
 }
- 
- 
+
+
 void TIMER3_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER3, NRF_TIMER_EVENT_COMPARE0);
 	now++;
 	if(timeout == now)
 		TimerIrqHandler( );
 }
- 
- #endif
+
+#endif

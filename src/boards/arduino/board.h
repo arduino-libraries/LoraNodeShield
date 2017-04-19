@@ -58,7 +58,7 @@ extern "C"{
 /*!
  * Board MCU pins definitions
  */
-#define RADIO_RESET                                 P_A0//??
+#define RADIO_RESET                                 P_A0
 
 #define RADIO_MOSI                                  P_11
 #define RADIO_MISO                                  P_12
@@ -69,17 +69,43 @@ extern "C"{
 #define RADIO_DIO_1                                 P_3
 #define RADIO_DIO_2                                 P_4
 #define RADIO_DIO_3                                 P_5
-#define RADIO_DIO_4                                 P_8 
+#define RADIO_DIO_4                                 P_8
 #define RADIO_DIO_5                                 P_9
 
-#define RADIO_ANT_SWITCH_HF                         //??
-#define RADIO_ANT_SWITCH_LF                         //??
- 
- 
+#define RADIO_ANT_SWITCH                            P_A4
+
 /*!
  * LED GPIO pins objects
  */
 extern Gpio_t Led13;
+
+#define USE_RADIO_DEBUG
+
+#if defined( USE_RADIO_DEBUG )
+extern Gpio_t DbgPin1;
+extern Gpio_t DbgPin2;
+#endif
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+/*!
+ * \brief Disable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardDisableIrq( void );
+
+/*!
+ * \brief Enable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardEnableIrq( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 /*!
  * \brief Initializes the target board peripherals.
