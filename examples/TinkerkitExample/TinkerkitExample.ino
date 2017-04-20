@@ -1,3 +1,9 @@
+/*
+ * Note : If you're using this example with an Arduino Primo download
+ * the ArduinoLowPower library from the library manager.
+ *
+ */
+
 #include "LoRaNode.h"
 
 const char * appEui = "00250C0000010001";

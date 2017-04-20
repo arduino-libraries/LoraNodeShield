@@ -1,4 +1,9 @@
-#include "SPI.h"
+/*
+ * Note : If you're using this example with an Arduino Primo download
+ * the ArduinoLowPower library from the library manager.
+ *
+ */
+ 
 #include "LoRaNode.h"
 
 void setup() {  

@@ -19,7 +19,7 @@
 #include "LoRaNode.h"
 
 #ifdef ARDUINO_ARCH_NRF52
-  #include <LowPower.h>
+  #include "ArduinoLowPower.h"
 #endif
 
 #define NR_OF_TRIALS	48
@@ -656,7 +656,7 @@ void LoRaNode::showStatus(){
 
 void LoRaNode::sleep(uint32_t ms){
 #ifdef ARDUINO_ARCH_NRF52
-  LowPower.standby(ms);
+  LowPower.sleep(ms);
 #else
   delay(ms);
 #endif
