@@ -57,7 +57,8 @@ void loop() {
   //             data , dataLength   , port
   node.sendFrame(frame, sizeof(frame), 2);
 
-  delay(10000);
+  //wait 10 seconds sleeping to save power
+  node.sleep(10000);
 }
 
 void readMsg(unsigned char * rcvData, int dim, int port){
