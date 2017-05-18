@@ -1,8 +1,29 @@
 /*
+ * sendWithButton.ino
+ * 
+ * This example shows how to use the connectors on the shield
+ * to interact with the LoRaWan network.
+ * Connect a tinkerkit temperature sensor to TWI connector, 
+ * a tinkerkit button to IN2 and a tinkerkit led to OUT6.
+ * Every time the button is pressed a packet cointaining the
+ * value read from the temp sensor and a count of the number
+ * of button pressure will be sent (note that the packet is
+ * sent in the Cayenne format).Every time the node receive a
+ * packet with the 'a' value the led will change status.
+
+ * Change the keys below to fit the application in your server.
+ * 
  * Note : If you're using this example with an Arduino Primo download
  * the ArduinoLowPower library from the library manager.
  *
- */
+ * To use the temperature value download the Adafruit_MLX90614
+ * library from the library manager.
+ * 
+ * This example code is in the public domain.
+ * 
+ * created April 2017
+ * by chiara@arduino.org
+ */ 
 
 #include "LoRaNode.h"
 
@@ -10,12 +31,6 @@
 #include <Adafruit_MLX90614.h>
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
-
-/*
-const char * devAddr = "26011AD0";
-const char * nwkSessionKey = "F60F30Cf0900ce09E07301104E02b0D3";
-const char * appSessionKey = "0CE04d0b30C80970D30a00A101d01001";
-*/
 
 const char * appEui = "00250C0000010001";
 const char * appKey = "0E708C34BBDA282AA8691318BCD06BBB";
@@ -73,11 +88,11 @@ void loop() {
 
         // read a value from the temperature sensor and send it
         float temp = mlx.readAmbientTempC();
-		    // temperature value has to be 2 byte long (MSB)
-		    // example: 27.25°C => 2725
-		    int temperature = temp * 100;
+        // temperature value has to be 2 byte long (MSB)
+        // example: 27.25°C => 2725
+        int temperature = temp * 100;
         frame[5] = (temperature & 0xFF00) >> 8;
-		    frame[6] = temperature & 0x00FF;
+        frame[6] = temperature & 0x00FF;
         // send button count also
         frame[2] = ++buttonCnt;
         node.sendFrame(frame, sizeof(frame), 2);

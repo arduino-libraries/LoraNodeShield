@@ -1,8 +1,28 @@
 /*
+ * TinkerkitExample.ino
+ * 
+ * This example shows how to use the connectors on the shield
+ * to interact with the LoRaWan network.
+ * Connect a tinkerkit button to IN2, a tinkerkit LDR sensor
+ * to IN3, a tinkerkit buzzer to OUT5 and a tinkerkit led to
+ * OUT6.
+ * Every time the button is pressed a packet cointaining the
+ * value read from the LDR sensor and a count of the number
+ * of button pressure will be sent (note that the packet is
+ * sent in the Cayenne format). If the node receive a packet
+ * with value 'a' the buzzer will sound. Any other received
+ * packet will change the led's status.
+
+ * Change the keys below to fit the application in your server.
+ * 
  * Note : If you're using this example with an Arduino Primo download
  * the ArduinoLowPower library from the library manager.
  *
- */
+ * This example code is in the public domain.
+ * 
+ * created April 2017
+ * by chiara@arduino.org
+ */ 
 
 #include "LoRaNode.h"
 
@@ -59,9 +79,9 @@ void loop() {
       if (buttonState == HIGH) {
         // read a value from the LDR sensor and send it
         int light = analogRead(ldrSensor);
-    	// illuminance value has to be 2 byte long (MSB)
+        // illuminance value has to be 2 byte long (MSB)
         frame[5] = (light & 0xFF00) >> 8;
-	    frame[6] = light & 0x00FF;
+        frame[6] = light & 0x00FF;
         // send button count also
         frame[2] = ++buttonCnt;
       

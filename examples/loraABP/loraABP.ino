@@ -1,9 +1,29 @@
 /*
+ * loraABP.ino
+ * 
+ * A simple example to use the Arduino LoRa Node shield.
+ * This example join the LoRaWan network and send periodically
+ * packets to the server. The activation method used is
+ * Activation By Personalization (ABP).
+ * If you register an application on a server with the same
+ * keys used in this example you will be able to see the
+ * packets sent from the node.
+ * Change the keys below to fit the application in your server.
+ * 
  * Note : If you're using this example with an Arduino Primo download
  * the ArduinoLowPower library from the library manager.
  *
+ * This example code is in the public domain.
+ * 
+ * created April 2017
+ * by chiara@arduino.org
  */
- 
+
+// Application's keys
+const char * deviceAddress         = "26011AD0";
+const char * networkSessionKey     = "F60F30CF0900CE09E07301104E02B0D3";
+const char * applicationSessionKey = "0CE04D0B30C80970D30A00A101D01001";
+
 #include "LoRaNode.h"
 
 void setup() {  
@@ -12,24 +32,24 @@ void setup() {
 
   Serial.begin(9600);
 
-  //            devAddr  , NetworkSessionKey                 , AppSessionKey   
-  node.joinABP("26011Ad0", "F60F30Cf0900ce09E07301104E02b0D3", "0CE04d0b30C80970D30a00A101d01001");
+  //register the keys for this application
+  node.joinABP(deviceAddress, networkSessionKey, applicationSessionKey);
   //register callback for incoming messages
   node.onReceive(readMsg);
   //begin initialization
   node.begin();    
-  
+  //show the node's main parameters
   node.showStatus();
 }
 
 void loop() {
-  //send a confirmed frame every 10 seconds
+  //send a frame every 10 seconds
   char frame[] = {0x00, 0x00, 0x00, 0xA0};
 
-  //             data , dataLength   , port, confirmed
+  //             data , dataLength   , port
   node.sendFrame(frame, sizeof(frame), 2);
 
-  delay(5000);
+  delay(10000);
  }
 
 void readMsg(unsigned char * rcvData, int dim, int port){
