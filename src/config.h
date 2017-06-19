@@ -17,7 +17,8 @@
 */
 
 // use this define if you are in Europe region
-#define USE_BAND_868
+#define REGION_EU868
 
 // use this define if you are in US region
-// #define USE_BAND_915
+// #define REGION_US915_HYBRID
+// #define REGION_US915

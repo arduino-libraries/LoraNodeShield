@@ -181,7 +181,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Param.AdrEnable = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
                 }
@@ -202,7 +202,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Type = MIB_ADR;
 					mibReq.Param.AdrEnable = 1;//LORAWAN_ADR_ON;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn(true /*LORAWAN_DUTYCYCLE_ON*/);
 #endif
                        break;
@@ -248,7 +248,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mibReq.Type = MIB_ADR;
                         mibReq.Param.AdrEnable = true;//LORAWAN_ADR_ON;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                         LoRaMacTestSetDutyCycleOn(true /*LORAWAN_DUTYCYCLE_ON */);
 #endif
 
@@ -277,6 +277,15 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                             MlmeReq_t mlmeReq;
                             mlmeReq.Type = MLME_TXCW;
                             mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
+                            LoRaMacMlmeRequest( &mlmeReq );
+                        }
+						else if( mcpsIndication->BufferSize == 7 )
+                        {
+                            MlmeReq_t mlmeReq;
+                            mlmeReq.Type = MLME_TXCW_1;
+                            mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
+                            mlmeReq.Req.TxCw.Frequency = ( uint32_t )( ( mcpsIndication->Buffer[3] << 16 ) | ( mcpsIndication->Buffer[4] << 8 ) | mcpsIndication->Buffer[5] ) * 100;
+                            mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[6];
                             LoRaMacMlmeRequest( &mlmeReq );
                         }
                         ComplianceTest.State = 1;
@@ -411,8 +420,15 @@ void LoRaNode::begin(){
 	_LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
 	_LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
 	_LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
-	LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks ); 
-	
+#if defined( REGION_EU868 )
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_US915 )
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915 );
+#elif defined( REGION_US915_HYBRID )
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915_HYBRID );
+#else
+    #error "Please define a region in the compiler options."
+#endif	
 	
 	_mibReq.Type = MIB_ADR;
 	_mibReq.Param.AdrEnable = 1;//LORAWAN_ADR_ON;
@@ -422,7 +438,7 @@ void LoRaNode::begin(){
 	_mibReq.Param.EnablePublicNetwork = true;//LORAWAN_PUBLIC_NETWORK;
 	LoRaMacMibSetRequestConfirm( &_mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
 	LoRaMacTestSetDutyCycleOn( true/*LORAWAN_DUTYCYCLE_ON*/ );
 
 	LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
@@ -526,7 +542,7 @@ void LoRaNode::showStatus(){
 	Serial.println();
 	Serial.println("LoRa Node parameters:");
 	Serial.print("Frequency:        ");
-#ifdef USE_BAND_868
+#ifdef REGION_EU868
 	Serial.print(868);
 #else
 	Serial.print(915);

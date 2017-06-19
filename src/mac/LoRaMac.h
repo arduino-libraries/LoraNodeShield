@@ -26,7 +26,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  *
- * \author    Daniel JÃ¤ckle ( STACKFORCE )
+ * \author    Daniel Jaeckle ( STACKFORCE )
  *
  * \defgroup  LORAMAC LoRa MAC layer implementation
  *            This module specifies the API implementation of the LoRaMAC layer.
@@ -46,70 +46,14 @@
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
 
-// Includes board dependent definitions such as channels frequencies
-#include "LoRaMac-definitions.h"
 //modified-------------------------------
-#include "boards/arduino/rtc-board.h" //added this row
+//#include "boards/arduino/rtc-board.h" //added this row
 //---------------------------------------
 
 /*!
  * Beacon interval in ms
  */
 #define BEACON_INTERVAL                             128000
-
-/*!
- * Class A&B receive delay 1 in ms
- */
-#define RECEIVE_DELAY1                              1000
-
-/*!
- * Class A&B receive delay 2 in ms
- */
-#define RECEIVE_DELAY2                              2000
-
-/*!
- * Join accept receive delay 1 in ms
- */
-#define JOIN_ACCEPT_DELAY1                          5000
-
-/*!
- * Join accept receive delay 2 in ms
- */
-#define JOIN_ACCEPT_DELAY2                          6000
-
-/*!
- * Class A&B maximum receive window delay in ms
- */
-#define MAX_RX_WINDOW                               3000
-
-/*!
- * Maximum allowed gap for the FCNT field
- */
-#define MAX_FCNT_GAP                                16384
-
-/*!
- * ADR acknowledgement counter limit
- */
-#define ADR_ACK_LIMIT                               64
-
-/*!
- * Number of ADR acknowledgement requests before returning to default datarate
- */
-#define ADR_ACK_DELAY                               32
-
-/*!
- * Number of seconds after the start of the second reception window without
- * receiving an acknowledge.
- * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
- */
-#define ACK_TIMEOUT                                 2000
-
-/*!
- * Random number of seconds after the start of the second reception window without
- * receiving an acknowledge
- * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
- */
-#define ACK_TIMEOUT_RND                             1000
 
 /*!
  * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
@@ -141,6 +85,13 @@
  * Mainly indicates the MIC field length
  */
 #define LORAMAC_MFR_LEN                             4
+
+/*!
+ * FRMPayload overhead to be used when setting the Radio.SetMaxPayloadLength
+ * in RxWindowSetup function.
+ * Maximum PHYPayload = MaxPayloadOfDatarate/MaxPayloadOfDatarateRepeater + LORA_MAC_FRMPAYLOAD_OVERHEAD
+ */
+#define LORA_MAC_FRMPAYLOAD_OVERHEAD                13 // MHDR(1) + FHDR(7) + Port(1) + MIC(4)
 
 /*!
  * LoRaWAN devices classes definition
@@ -233,6 +184,10 @@ typedef struct sChannelParams
      */
     uint32_t Frequency;
     /*!
+     * Alternative frequency for RX window 1
+     */
+    uint32_t Rx1Frequency;
+    /*!
      * Data rate definition
      */
     DrRange_t DrRange;
@@ -275,6 +230,17 @@ typedef struct sLoRaMacParams
      */
     int8_t ChannelsDatarate;
     /*!
+     * System overall timing error in milliseconds. 
+     * [-SystemMaxRxError : +SystemMaxRxError]
+     * Default: +/-10 ms
+     */
+    uint32_t SystemMaxRxError;
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     * Default: 6 symbols
+     */
+    uint8_t MinRxSymbols;
+    /*!
      * LoRaMac maximum time a reception window stays open
      */
     uint32_t MaxRxWindow;
@@ -307,9 +273,21 @@ typedef struct sLoRaMacParams
      */
     Rx2ChannelParams_t Rx2Channel;
     /*!
-     * Mask indicating which channels are enabled
+     * Uplink dwell time configuration. 0: No limit, 1: 400ms
      */
-    uint16_t ChannelsMask[6];
+    uint8_t UplinkDwellTime;
+    /*!
+     * Downlink dwell time configuration. 0: No limit, 1: 400ms
+     */
+    uint8_t DownlinkDwellTime;
+    /*!
+     * Maximum possible EIRP
+     */
+    float MaxEirp;
+    /*!
+     * Antenna gain of the node
+     */
+    float AntennaGain;
 }LoRaMacParams_t;
 
 /*!
@@ -415,6 +393,14 @@ typedef enum eLoRaMacMoteCmd
      * RXTimingSetupAns
      */
     MOTE_MAC_RX_TIMING_SETUP_ANS     = 0x08,
+    /*!
+     * TXParamSetupAns
+     */
+    MOTE_MAC_TX_PARAM_SETUP_ANS      = 0x09,
+    /*!
+     * DlChannelAns
+     */
+    MOTE_MAC_DL_CHANNEL_ANS          = 0x0A
 }LoRaMacMoteCmd_t;
 
 /*!
@@ -452,6 +438,14 @@ typedef enum eLoRaMacSrvCmd
      * RXTimingSetupReq
      */
     SRV_MAC_RX_TIMING_SETUP_REQ      = 0x08,
+    /*!
+     * NewChannelReq
+     */
+    SRV_MAC_TX_PARAM_SETUP_REQ       = 0x09,
+    /*!
+     * DlChannelReq
+     */
+    SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
 }LoRaMacSrvCmd_t;
 
 /*!
@@ -569,6 +563,10 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,
     /*!
+     * An Rx error occurred on receive window 1
+     */
+    LORAMAC_EVENT_INFO_STATUS_RX1_ERROR,
+    /*!
      * An Rx error occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_ERROR,
@@ -623,6 +621,10 @@ typedef union eLoRaMacFlags_t
          * MCPS-Ind pending
          */
         uint8_t McpsInd         : 1;
+        /*!
+         * MCPS-Ind pending. Skip indication to the application layer
+         */
+        uint8_t McpsIndSkip     : 1;
         /*!
          * MLME-Req pending
          */
@@ -947,6 +949,12 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW,
+    /*!
+     * Sets Tx continuous wave mode (new LoRa-Alliance CC definition)
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_TXCW_1,
 }Mlme_t;
 
 /*!
@@ -987,6 +995,14 @@ typedef struct sMlmeReqTxCw
      * Time in seconds while the radio is kept in continuous wave mode
      */
     uint16_t Timeout;
+    /*!
+     * RF frequency to set (Only used with new way)
+     */
+    uint32_t Frequency;
+    /*!
+     * RF output power to set (Only used with new way)
+     */
+    uint8_t Power;
 }MlmeReqTxCw_t;
 
 /*!
@@ -1041,6 +1057,10 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
+    /*!
+     * Provides the number of retransmissions
+     */
+    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 /*!
@@ -1076,6 +1096,9 @@ typedef struct sMlmeConfirm
  * \ref MIB_UPLINK_COUNTER           | YES | YES
  * \ref MIB_DOWNLINK_COUNTER         | YES | YES
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
+ * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
+ * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
+ * \ref MIB_ANTENNA_GAIN             | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1281,6 +1304,24 @@ typedef enum eMib
      * NULL, the list is empty.
      */
     MIB_MULTICAST_CHANNEL,
+    /*!
+     * System overall timing error in milliseconds. 
+     * [-SystemMaxRxError : +SystemMaxRxError]
+     * Default: +/-10 ms
+     */
+    MIB_SYSTEM_MAX_RX_ERROR,
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     * Default: 6 symbols
+     */
+    MIB_MIN_RX_SYMBOLS,
+    /*!
+     * Antenna gain of the node. Default value is region specific.
+     * The antenna gain is used to calculate the TX power of the node.
+     * The formula is:
+     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
+     */
+    MIB_ANTENNA_GAIN
 }Mib_t;
 
 /*!
@@ -1450,6 +1491,24 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
     MulticastParams_t* MulticastList;
+    /*!
+     * System overall timing error in milliseconds. 
+     *
+     * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
+     */
+    uint32_t SystemMaxRxError;
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     *
+     * Related MIB type: \ref MIB_MIN_RX_SYMBOLS
+     */
+    uint8_t MinRxSymbols;
+    /*!
+     * Antenna gain
+     *
+     * Related MIB type: \ref MIB_ANTENNA_GAIN
+     */
+    float AntennaGain;
 }MibParam_t;
 
 /*!
@@ -1521,18 +1580,66 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_NO_NETWORK_JOINED,
     /*!
-     * Service not started - payload lenght error
+     * Service not started - payload length error
      */
     LORAMAC_STATUS_LENGTH_ERROR,
-    /*!
-     * Service not started - payload lenght error
-     */
-    LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR,
     /*!
      * Service not started - the device is switched off
      */
     LORAMAC_STATUS_DEVICE_OFF,
+    /*!
+     * Service not started - the specified region is not supported
+     * or not activated with preprocessor definitions.
+     */
+    LORAMAC_STATUS_REGION_NOT_SUPPORTED
 }LoRaMacStatus_t;
+
+/*!
+ * LoRaMAC region enumeration
+ */
+typedef enum eLoRaMacRegion_t
+{
+    /*!
+     * AS band on 923MHz
+     */
+    LORAMAC_REGION_AS923,
+    /*!
+     * Australian band on 915MHz
+     */
+    LORAMAC_REGION_AU915,
+    /*!
+     * Chinese band on 470MHz
+     */
+    LORAMAC_REGION_CN470,
+    /*!
+     * Chinese band on 779MHz
+     */
+    LORAMAC_REGION_CN779,
+    /*!
+     * European band on 433MHz
+     */
+    LORAMAC_REGION_EU433,
+    /*!
+     * European band on 868MHz
+     */
+    LORAMAC_REGION_EU868,
+    /*!
+     * South korean band on 920MHz
+     */
+    LORAMAC_REGION_KR920,
+    /*!
+     * India band on 865MHz
+     */
+    LORAMAC_REGION_IN865,
+    /*!
+     * North american band on 915MHz
+     */
+    LORAMAC_REGION_US915,
+    /*!
+     * North american band on 915MHz with a maximum of 16 channels
+     */
+    LORAMAC_REGION_US915_HYBRID,
+}LoRaMacRegion_t;
 
 /*!
  * LoRaMAC events structure
@@ -1560,6 +1667,9 @@ typedef struct sLoRaMacPrimitives
     void ( *MacMlmeConfirm )( MlmeConfirm_t *MlmeConfirm );
 }LoRaMacPrimitives_t;
 
+/*!
+ * LoRaMAC callback structure
+ */
 typedef struct sLoRaMacCallback
 {
     /*!
@@ -1574,6 +1684,13 @@ typedef struct sLoRaMacCallback
 }LoRaMacCallback_t;
 
 /*!
+ * LoRaMAC Max EIRP (dBm) table
+ */
+static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
+
+
+
+/*!
  * \brief   LoRaMAC layer initialization
  *
  * \details In addition to the initialization of the LoRaMAC layer, this
@@ -1581,19 +1698,22 @@ typedef struct sLoRaMacCallback
  *          MLME services. Every data field of \ref LoRaMacPrimitives_t must be
  *          set to a valid callback function.
  *
- * \param   [IN] events - Pointer to a structure defining the LoRaMAC
- *                        event functions. Refer to \ref LoRaMacPrimitives_t.
+ * \param   [IN] primitives - Pointer to a structure defining the LoRaMAC
+ *                            event functions. Refer to \ref LoRaMacPrimitives_t.
  *
  * \param   [IN] events - Pointer to a structure defining the LoRaMAC
  *                        callback functions. Refer to \ref LoRaMacCallback_t.
  *
+ * \param   [IN] region - The region to start.
+ *
  * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
  *          returns are:
  *          \ref LORAMAC_STATUS_OK,
- *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
+ *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
+ *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
  */
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks );
-void LoRaMacTestSetDutyCycleOn( bool enable );
+LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region );
+
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
  *          a given payload size. The LoRaMAC takes scheduled MAC commands into
