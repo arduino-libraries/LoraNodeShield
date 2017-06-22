@@ -67,6 +67,15 @@ extern "C"{
 
 typedef void (*LoRaNodeEventHandler)(unsigned char * buffer, int buffSize, int port);
 
+enum SF{
+	SF7,
+	SF8,
+	SF9,
+	SF10,
+	SF11,
+	SF12
+};
+
 class LoRaNode {
  public:
 	LoRaNode();
@@ -81,6 +90,10 @@ class LoRaNode {
 	void poll(int port, bool confirm = false);	//function to send a dummy frame in order to open the receive windows
 	void showStatus();	//print node parameters
 	void sleep(uint32_t ms);
+	
+	void setSF(SF sf);
+	void setTxPower(int power);
+
 	bool                     nextTx;
 	bool                     joined;
 	LoRaNodeEventHandler     onReceiveCallback;
@@ -103,6 +116,8 @@ class LoRaNode {
     LoRaMacCallback_t        _LoRaMacCallbacks;
     MibRequestConfirm_t      _mibReq;
 	bool                     _initialized;
+	uint8_t                  _dr;
+	uint8_t                  _power;
 
 };
 

@@ -2226,7 +2226,7 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region )
+LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region, uint8_t dr, uint8_t txPower )
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
@@ -2274,12 +2274,14 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     getPhy.Attribute = PHY_DEF_TX_POWER;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ChannelsTxPower = phyParam.Value;
+    // LoRaMacParamsDefaults.ChannelsTxPower = phyParam.Value;
+    LoRaMacParamsDefaults.ChannelsTxPower = txPower;
 
     getPhy.Attribute = PHY_DEF_TX_DR;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ChannelsDatarate = phyParam.Value;
-
+    // LoRaMacParamsDefaults.ChannelsDatarate = phyParam.Value;
+    LoRaMacParamsDefaults.ChannelsDatarate = dr;
+	
     getPhy.Attribute = PHY_MAX_RX_WINDOW;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.MaxRxWindow = phyParam.Value;

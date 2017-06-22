@@ -21,4 +21,3 @@
 
 // use this define if you are in US region
 // #define REGION_US915_HYBRID
-// #define REGION_US915

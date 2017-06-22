@@ -382,9 +382,14 @@ LoRaNode::LoRaNode() :
 	_devAddr(NULL),
 	_nwkSKey(NULL),
 	_appSKey(NULL),
-	_initialized(false)
+	_initialized(false),
+	_dr(DR_0)
 {
-	//
+#ifdef REGION_EU868
+	_power = 1;
+#elif defined (REGION_US915) | defined (REGION_US915_HYBRID)
+	_power = 5;
+#endif
 }
 
 void LoRaNode::onReceive(LoRaNodeEventHandler handler){
@@ -421,11 +426,11 @@ void LoRaNode::begin(){
 	_LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
 	_LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
 #if defined( REGION_EU868 )
-                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_EU868, _dr, _power );
 #elif defined( REGION_US915 )
-                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915 );
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915, _dr, _power );
 #elif defined( REGION_US915_HYBRID )
-                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915_HYBRID );
+                LoRaMacInitialization( &_LoRaMacPrimitives, &_LoRaMacCallbacks, LORAMAC_REGION_US915_HYBRID, _dr, _power );
 #else
     #error "Please define a region in the compiler options."
 #endif	
@@ -675,6 +680,128 @@ void LoRaNode::sleep(uint32_t ms){
   LowPower.sleep(ms);
 #else
   delay(ms);
+#endif
+}
+
+void LoRaNode::setSF(SF sf){
+#ifdef REGION_EU868
+	switch(sf){
+		case SF7:
+			_dr = DR_5;
+		break;
+		case SF8:
+			_dr = DR_4;
+		break;
+		case SF9:
+			_dr = DR_3;
+		case SF10:
+			_dr = DR_2;
+		break;
+		case SF11:
+			_dr = DR_1;
+		break;
+		case SF12:
+			_dr = DR_0;
+		break;
+		default:
+			_dr = DR_0;
+		break;
+	}
+#elif defined (REGION_US915_HYBRID) | defined (REGION_US915)
+	switch(sf){
+		case SF7:
+			_dr = DR_3;
+		break;
+		case SF8:
+			_dr = DR_2;
+		break;
+		case SF9:
+			_dr = DR_1;
+		case SF10:
+			_dr = DR_0;
+		break;
+		default:
+			_dr = DR_0;
+		break;
+	}
+#endif	
+}
+
+void LoRaNode::setTxPower(int power){
+
+#ifdef REGION_EU868
+	if(power >= 16){
+		_power = 0;
+		return;
+	}
+	if(power >= 14){
+		_power = 1;
+		return;
+	}
+	if(power >= 12){
+		_power = 2;
+		return;
+	}
+	if(power >= 10){
+		_power = 3;
+		return;
+	}
+	if(power >= 8){
+		_power = 4;
+		return;
+	}
+	if(power >= 6){
+		_power = 5;
+		return;
+	}
+	if(power >= 4){
+		_power = 6;
+		return;
+	}
+	else{
+		_power = 7;
+		return;
+	}
+	
+#elif defined (REGION_US915_HYBRID) | defined (REGION_US915)
+	if(power >= 30){
+		_power = 0;
+		return;
+	}
+	if(power >= 28){
+		_power = 1;
+		return;
+	}
+	if(power >= 26){
+		_power = 2;
+		return;
+	}
+	if(power >= 24){
+		_power = 3;
+		return;
+	}
+	if(power >= 22){
+		_power = 4;
+		return;
+	}
+	if(power >= 20){
+		_power = 5;
+		return;
+	}
+	if(power >= 18){
+		_power = 6;
+		return;
+	}
+	if(power >= 16){
+		_power = 7;
+		return;
+	}
+	if(power >= 14){
+		_power = 8;
+		return;
+	}
+
+
 #endif
 }
 
