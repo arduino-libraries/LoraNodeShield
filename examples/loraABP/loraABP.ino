@@ -17,6 +17,13 @@
  * 
  * created April 2017
  * by chiara@arduino.org
+ *
+ ***********************************************************************
+ * NOTE:
+ * Frequency is defined in config.h file inside the src folder of this
+ * library. Edit this file to select the frequency that fit your region.
+ ***********************************************************************
+ *
  */
 
 // Application's keys
