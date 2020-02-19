@@ -1,3 +1,5 @@
+> **Note:** this library is deprecated and no longer maintained.
+
 /*
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
